@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 set -e
 
@@ -7,7 +7,7 @@ DAYS=$(find "$DIR" -maxdepth 1 -type d -name 'Day [0-9]*')
 
 # see .travis.yml
 if [ -f ~/.swiftenv/init ]; then
-    . ~/.swiftenv/init
+    source ~/.swiftenv/init
 fi
 
 echo "$DAYS" | while read DAY; do
