@@ -6,12 +6,12 @@ public class InverseCaptcha {
   }
 
   // NOTE: part one
-  public func solve_next() -> Int {
+  public func next_solution() -> Int {
     return solve { $0 + 1 }
   }
 
   // NOTE: part two
-  public func solve_halfway_around() -> Int {
+  public func halfway_around_solution() -> Int {
     return solve { $0 + digits.count / 2 }
   }
 
