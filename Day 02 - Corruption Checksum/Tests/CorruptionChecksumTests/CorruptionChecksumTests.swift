@@ -6,6 +6,7 @@ extension CorruptionChecksumTests {
   static var allTests: [(String, (CorruptionChecksumTests) -> () throws -> Void)] {
     return [
       ("testPartOne", testPartOne),
+      ("testPartTwo", testPartTwo),
     ]
   }
 }
@@ -22,5 +23,16 @@ class CorruptionChecksumTests: XCTestCase {
     7 5 3
     2 4 6 8
     """).checksum, 18)
+  }
+
+  func testPartTwo() {
+    XCTAssertEqual(SpreadSheet("5 9 2 8").division, 4)
+    XCTAssertEqual(SpreadSheet("9 4 7 3").division, 3)
+    XCTAssertEqual(SpreadSheet("3 8 6 5").division, 2)
+    XCTAssertEqual(SpreadSheet("""
+    5 9 2 8
+    9 4 7 3
+    3 8 6 5
+    """).division, 9)
   }
 }

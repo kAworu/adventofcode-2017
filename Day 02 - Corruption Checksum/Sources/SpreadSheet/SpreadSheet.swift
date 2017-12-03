@@ -9,6 +9,10 @@ public class SpreadSheet {
   public var checksum: Int {
     return rows.reduce(0, { acc, row in acc + row.checksum })
   }
+
+  public var division: Int {
+    return rows.reduce(0, { acc, row in acc + row.division })
+  }
 }
 
 
@@ -22,10 +26,9 @@ class Row {
   }
 
   var checksum: Int {
-    if digits.count == 0 {
+    guard let first = digits.first else {
       return 0
     }
-    let first = digits[0]
     let mm = digits.reduce((min: first, max: first), { acc, x in
       if x > acc.max {
         return (min: acc.min, max: x)
@@ -36,5 +39,17 @@ class Row {
       }
     })
     return (mm.max - mm.min)
+  }
+
+  var division: Int {
+    for (i, e) in digits.enumerated() {
+        for f in digits[(i + 1)..<digits.count] {
+          let (min, max) = (e > f ? (f, e) : (e, f))
+          if max % min == 0 {
+            return max / min
+          }
+      }
+    }
+    return 0
   }
 }

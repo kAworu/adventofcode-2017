@@ -11,4 +11,5 @@ func get_puzzle() -> String {
 
 let puzzle = get_puzzle()
 let spreadsheet = SpreadSheet(puzzle)
-print("The spreadsheet's checksum is \(spreadsheet.checksum).")
+print("The spreadsheet's checksum is \(spreadsheet.checksum),")
+print("and its evenly division is \(spreadsheet.division).")
