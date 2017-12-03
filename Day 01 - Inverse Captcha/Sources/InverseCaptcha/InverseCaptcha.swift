@@ -1,5 +1,5 @@
 public class InverseCaptcha {
-  var digits: Array<Int>
+  var digits: [Int]
 
   public init(_ captcha: String) {
     digits = captcha.map { Int(String($0))! }

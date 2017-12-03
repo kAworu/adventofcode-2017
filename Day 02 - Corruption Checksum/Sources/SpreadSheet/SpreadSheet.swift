@@ -1,24 +1,24 @@
 // A corrupted Spreadsheet.
 public class SpreadSheet {
-  var rows: Array<Row>
+  var rows: [Row]
 
   public init(_ lines: String) {
     rows = lines.split { $0 == "\n" }.map { Row(String($0)) }
   }
 
   public var checksum: Int {
-    return rows.reduce(0, { acc, row in acc + row.checksum })
+    return rows.map { $0.checksum }.reduce(0, +)
   }
 
   public var division: Int {
-    return rows.reduce(0, { acc, row in acc + row.division })
+    return rows.map { $0.division }.reduce(0, +)
   }
 }
 
 
 // Represent one row of a SpreadSheet.
 class Row {
-  var digits: Array<Int>
+  var digits: [Int]
 
   init(_ line: String) {
     // NOTE: handle spaces as separator for the tests.
