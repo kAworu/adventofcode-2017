@@ -6,10 +6,12 @@ public class SpreadSheet {
     rows = lines.split { $0 == "\n" }.map { Row(String($0)) }
   }
 
+  // NOTE: part one
   public var checksum: Int {
     return rows.map { $0.checksum }.reduce(0, +)
   }
 
+  // NOTE: part two
   public var division: Int {
     return rows.map { $0.division }.reduce(0, +)
   }
@@ -42,9 +44,9 @@ class Row {
   }
 
   var division: Int {
-    for (i, e) in digits.enumerated() {
-        for f in digits[(i + 1)..<digits.count] {
-          let (min, max) = (e > f ? (f, e) : (e, f))
+    for (i, x) in digits.enumerated() {
+        for y in digits[(i + 1)..<digits.count] {
+          let (min, max) = (x > y ? (y, x) : (x, y))
           if max % min == 0 {
             return max / min
           }
