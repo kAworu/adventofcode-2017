@@ -15,9 +15,9 @@ extension CorruptionChecksumTests {
 class CorruptionChecksumTests: XCTestCase {
 
   func testPartOne() {
-    XCTAssertEqual(SpreadSheet("5 1 9 5").checksum, 8)
-    XCTAssertEqual(SpreadSheet("7 5 3").checksum,   4)
-    XCTAssertEqual(SpreadSheet("2 4 6 8").checksum, 6)
+    XCTAssertEqual(Row("5 1 9 5").checksum, 8)
+    XCTAssertEqual(Row("7 5 3").checksum,   4)
+    XCTAssertEqual(Row("2 4 6 8").checksum, 6)
     XCTAssertEqual(SpreadSheet("""
     5 1 9 5
     7 5 3
@@ -26,9 +26,9 @@ class CorruptionChecksumTests: XCTestCase {
   }
 
   func testPartTwo() {
-    XCTAssertEqual(SpreadSheet("5 9 2 8").division, 4)
-    XCTAssertEqual(SpreadSheet("9 4 7 3").division, 3)
-    XCTAssertEqual(SpreadSheet("3 8 6 5").division, 2)
+    XCTAssertEqual(Row("5 9 2 8").division, 4)
+    XCTAssertEqual(Row("9 4 7 3").division, 3)
+    XCTAssertEqual(Row("3 8 6 5").division, 2)
     XCTAssertEqual(SpreadSheet("""
     5 9 2 8
     9 4 7 3
