@@ -1,6 +1,6 @@
 // A corrupted Spreadsheet.
 public class SpreadSheet {
-  var rows: [Row]
+  let rows: [Row]
 
   public init(_ lines: String) {
     rows = lines.split { $0 == "\n" }.map { Row(String($0)) }
@@ -20,7 +20,7 @@ public class SpreadSheet {
 
 // Represent one row of a SpreadSheet.
 class Row {
-  var digits: [Int]
+  let digits: [Int]
 
   init(_ line: String) {
     // NOTE: handle spaces as separator for the tests.
