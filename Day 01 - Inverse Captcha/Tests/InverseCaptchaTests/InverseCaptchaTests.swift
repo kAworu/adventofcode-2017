@@ -1,17 +1,6 @@
 import XCTest
 @testable import InverseCaptcha
 
-#if os(Linux)
-extension InverseCaptchaTests {
-  static var allTests: [(String, (InverseCaptchaTests) -> () throws -> Void)] {
-    return [
-      ("testPartOne", testPartOne),
-      ("testPartTwo", testPartTwo),
-    ]
-  }
-}
-#endif
-
 class InverseCaptchaTests: XCTestCase {
 
   func testPartOne() {
@@ -29,3 +18,14 @@ class InverseCaptchaTests: XCTestCase {
     XCTAssertEqual(InverseCaptcha("12131415").halfway_around_solution(),  4)
   }
 }
+
+#if os(Linux)
+extension InverseCaptchaTests {
+  static var allTests: [(String, (InverseCaptchaTests) -> () throws -> Void)] {
+    return [
+      ("testPartOne", testPartOne),
+      ("testPartTwo", testPartTwo),
+    ]
+  }
+}
+#endif // os(Linux)

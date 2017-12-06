@@ -1,17 +1,6 @@
 import XCTest
 @testable import SpreadSheet
 
-#if os(Linux)
-extension CorruptionChecksumTests {
-  static var allTests: [(String, (CorruptionChecksumTests) -> () throws -> Void)] {
-    return [
-      ("testPartOne", testPartOne),
-      ("testPartTwo", testPartTwo),
-    ]
-  }
-}
-#endif
-
 class CorruptionChecksumTests: XCTestCase {
 
   func testPartOne() {
@@ -36,3 +25,14 @@ class CorruptionChecksumTests: XCTestCase {
     """).division, 9)
   }
 }
+
+#if os(Linux)
+extension CorruptionChecksumTests {
+  static var allTests: [(String, (CorruptionChecksumTests) -> () throws -> Void)] {
+    return [
+      ("testPartOne", testPartOne),
+      ("testPartTwo", testPartTwo),
+    ]
+  }
+}
+#endif // os(Linux)
