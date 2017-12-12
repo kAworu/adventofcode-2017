@@ -16,10 +16,10 @@ public class InverseCaptcha {
   }
 
   internal func solve(next: (Int) -> Int) -> Int {
-    return digits.indices.reduce(0, { acc, i in
+    return digits.indices.reduce(0) { acc, i in
       let current = digits[i]
       let match   = digits[next(i) % digits.count]
       return acc + (current == match ? current : 0)
-    })
+    }
   }
 }
