@@ -4,13 +4,17 @@ import XCTest
 class HighEntropyPassphrasesTests: XCTestCase {
 
   func testPartOne() {
-    XCTAssert(HighEntropyPassphrases("aa bb cc dd ee").valid)
-    XCTAssertFalse(HighEntropyPassphrases("aa bb cc dd aa").valid)
-    XCTAssert(HighEntropyPassphrases("aa bb cc dd aaa").valid)
+    XCTAssertFalse(HighEntropyPassphrases("aa bb cc dd ee").has_duplicate_word)
+    XCTAssert(HighEntropyPassphrases("aa bb cc dd aa").has_duplicate_word)
+    XCTAssertFalse(HighEntropyPassphrases("aa bb cc dd aaa").has_duplicate_word)
   }
 
   func testPartTwo() {
-    // TODO
+    XCTAssertFalse(HighEntropyPassphrases("abcde fghij").has_anagram)
+    XCTAssert(HighEntropyPassphrases("abcde xyz ecdab").has_anagram)
+    XCTAssertFalse(HighEntropyPassphrases("a ab abc abd abf abj").has_anagram)
+    XCTAssertFalse(HighEntropyPassphrases("iiii oiii ooii oooi oooo").has_anagram)
+    XCTAssert(HighEntropyPassphrases("oiii ioii iioi iiio").has_anagram)
   }
 }
 
