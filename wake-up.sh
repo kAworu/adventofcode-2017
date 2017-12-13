@@ -8,14 +8,18 @@ set -e
 
 ROOT=$(dirname "$0")
 
-if [ $# -ne 2 ]; then
-    echo "usage $(basename "$0") DAY NAME" > /dev/stderr
+if [ $# -ne 2 -a $# -ne 3 ]; then
+    echo "usage $(basename "$0") DAY NAME [SLUG]" > /dev/stderr
     exit 1
 fi
 
 DAY=$1
 NAME=$2
-SLUG=$(echo "$NAME" | sed -e 's/[- ]//g')
+if [ -n "$3" ]; then
+    SLUG=$3
+else
+    SLUG=$(echo "$NAME" | sed -e 's/[- ,]//g')
+fi
 TEST="${SLUG}Tests"
 
 DAYDIR="${ROOT}/Day ${DAY} - ${NAME}"
