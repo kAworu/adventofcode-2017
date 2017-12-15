@@ -4,11 +4,11 @@ import XCTest
 class MemoryReallocationTests: XCTestCase {
 
   func testPartOne() {
-    XCTAssertEqual(MemoryReallocation([0, 2, 7, 0]).redistribution_cycles_count, 5)
+    XCTAssertEqual(MemoryReallocation([0, 2, 7, 0]).debug().before_looping, 5)
   }
 
   func testPartTwo() {
-    // TODO
+    XCTAssertEqual(MemoryReallocation([0, 2, 7, 0]).debug().loop, 4)
   }
 }
 

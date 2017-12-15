@@ -7,13 +7,14 @@ public class MemoryReallocation {
     }
   }
 
-  public var redistribution_cycles_count: Int {
-    var seen: Set<String> = []
+  public func debug() -> (before_looping: Int, loop: Int) {
+    // banks state description to cycle number dictionary
+    var seen: [String: Int] = [:]
     var banks = self.banks
     var desc  = banks.description
     var cycle = 0
-    while !seen.contains(desc) {
-      seen.insert(desc)
+    while seen[desc] == nil {
+      seen[desc] = cycle
       let giver = banks.max()!
       // update the banks by redistributing giver's blocks
       let (start, stop) = (giver.id + 1, giver.id + giver.blocks)
@@ -24,7 +25,7 @@ public class MemoryReallocation {
       cycle += 1
       desc = banks.description
     }
-    return cycle
+    return (before_looping: cycle, loop: cycle - seen[desc]!)
   }
 }
 
