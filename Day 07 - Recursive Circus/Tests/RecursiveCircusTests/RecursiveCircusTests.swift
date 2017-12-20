@@ -2,9 +2,7 @@ import XCTest
 @testable import RecursiveCircus
 
 class RecursiveCircusTests: XCTestCase {
-
-  func testPartOne() {
-    XCTAssertEqual(RecursiveCircus("""
+  static let PUZZLE = """
     pbga (66)
     xhth (57)
     ebii (61)
@@ -18,11 +16,24 @@ class RecursiveCircusTests: XCTestCase {
     ugml (68) -> gyxo, ebii, jptl
     gyxo (61)
     cntj (57)
-    """)!.bottom_program, "tknk")
+  """
+
+  func testPartOne() {
+    let tower = RecursiveCircus(RecursiveCircusTests.PUZZLE)!
+    XCTAssertEqual(tower.bottom_program!.name, "tknk")
   }
 
   func testPartTwo() {
-    // TODO
+    let tower = RecursiveCircus(RecursiveCircusTests.PUZZLE)!
+    do {
+      let _ = try tower.bottom_program!.total_weight()
+      XCTFail("Expected an Error to be thrown.")
+    } catch let err as InvalidWeightError {
+      XCTAssertEqual(err.culprit.name, "ugml")
+      XCTAssertEqual(err.corrected_weight, 60)
+    } catch {
+      XCTFail("Wrong error type, expected ProgrammingError.")
+    }
   }
 }
 

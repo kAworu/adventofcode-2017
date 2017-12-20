@@ -1,7 +1,7 @@
 import Regex
 
 public class RecursiveCircus {
-  let programs: [String: Program]
+  let programs: Set<Program>
 
   convenience init?(_ list: String) {
     let lines = list.split(separator: "\n").map(String.init)
@@ -11,9 +11,8 @@ public class RecursiveCircus {
   public init?(_ lines: [String]) {
     var programs: [String: Program]  = [:] // name to Program dict
     var children: [String: [String]] = [:] // name to children names dict
-
-    // first pass, build all Program populating their name and weight
-    // properties.
+    // First pass: build all the programs populating only their name and weight
+    // members (ignoring relationships for now).
     for line in lines {
       guard let match = Program.LINE_REGEX.firstMatch(in: line) else {
         return nil
@@ -28,8 +27,7 @@ public class RecursiveCircus {
         $0.matchedString
       }
     }
-
-  // second pass, build the parent → child relationships
+    // Second pass: build the parent → child relationships
     for parent in programs.values {
       for child_name in children[parent.name]! {
         guard let child = programs[child_name] else {
@@ -38,28 +36,20 @@ public class RecursiveCircus {
         parent → child
       }
     }
-
     // we're done
-    self.programs = programs
+    self.programs = Set(programs.values)
   }
 
-  public var bottom_program: String? {
-    // start with a random program and traverse the tree until we find the
-    // root program.
-    guard var p = programs.first?.value else {
-      return nil
-    }
-    while p.is_child {
-      p = p.parent!
-    }
-    return p.name
+  // NOTE: part one
+  public var bottom_program: Program? {
+    return programs.first(where: { $0.is_parent && !$0.is_child })
   }
 }
 
 // parent to child relationship operator
 infix operator →: ComparisonPrecedence
 
-class Program {
+public class Program {
   static let LINE_REGEX = Regex("([a-z]+) \\(([0-9]+)\\)(.*)?")
   static let NAME_REGEX = Regex("[a-z]+")
 
@@ -75,6 +65,7 @@ class Program {
   var parent: Program?
   var children: Set<Program>
 
+  // Create a new program without parent nor children.
   init(name: String, weight: Int) {
     self.name     = name
     self.weight   = weight
@@ -82,22 +73,75 @@ class Program {
     self.children = []
   }
 
+  // Returns true if this program has at least one child, false otherwise.
   var is_parent: Bool {
     return !children.isEmpty
   }
 
+  // Returns true if this program has a parent, false otherwise.
   var is_child: Bool {
     return parent != nil
   }
+
+  // NOTE: part two
+  // Returns the weight of this program and all programs above it iff it is
+  // balanced, throws a `ProgrammingError.invalidWeight` otherwise.
+  public func total_weight() throws -> Int {
+    // this will throw if any program above self is unbalanced.
+    let weights = try Dictionary(grouping: children, by: {
+      try $0.total_weight()
+    })
+    // Here all our children are balanced themselves. If we have no children or
+    // all have the same weight, then we are balanced too.
+    if weights.count < 2 {
+      return weights.reduce(self.weight) { acc, element in
+        return acc + element.key * element.value.count
+      }
+    }
+    // Here we are unbalanced. The child needing a correction (the culprit) is
+    // the sole of our children having a different total_weight than the
+    // others. In our grouping it is the one alone for its total_weight, i.e.
+    // the entry in `weights` having the minimum (only one) program as value.
+    let min     = weights.min(by: { $0.value.count < $1.value.count })!
+    let max     = weights.max(by: { $0.value.count < $1.value.count })!
+    let culprit = min.value.first!  // min.value is an array of size 1 here
+    let delta   = max.key - min.key // keys are total_weight in our grouping
+    throw InvalidWeightError(culprit: culprit, delta: delta)
+  }
 }
 
-// delegate hashValue and == to the Program's name
+// see Program.total_weight()
+public class InvalidWeightError: Error {
+  public let culprit: Program
+  let delta: Int
+
+  init(culprit: Program, delta: Int) {
+    self.culprit = culprit
+    self.delta   = delta
+  }
+
+  // Returns the corrected weight of our culprit.
+  public var corrected_weight: Int {
+    return culprit.weight + delta
+  }
+}
+
+// "delegate" hashValue, == and String conversion to the Program's name and
+// expose them.
+
 extension Program: Hashable {
-  var hashValue: Int {
+  public var hashValue: Int {
     return name.hashValue
   }
 
-  static func ==(lhs: Program, rhs: Program) -> Bool {
+  // NOTE: assume that there are no two programs with the same name.
+  public static func ==(lhs: Program, rhs: Program) -> Bool {
     return lhs.name == rhs.name
+  }
+}
+
+extension Program: CustomStringConvertible {
+  public var description: String {
+    return name
   }
 }
