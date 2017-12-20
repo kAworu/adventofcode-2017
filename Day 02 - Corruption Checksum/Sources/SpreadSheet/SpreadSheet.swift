@@ -3,7 +3,7 @@ public class SpreadSheet {
   let rows: [Row]
 
   public init(_ lines: String) {
-    rows = lines.split { $0 == "\n" }.map { Row(String($0)) }
+    rows = lines.split(separator: "\n").map { Row(String($0)) }
   }
 
   // NOTE: part one

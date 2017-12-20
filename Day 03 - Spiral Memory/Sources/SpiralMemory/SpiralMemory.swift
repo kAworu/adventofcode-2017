@@ -116,7 +116,7 @@ extension GridPoint: Hashable {
     return x.hashValue ^ y.hashValue &* 16777619
   }
 
-  static func == (lhs: GridPoint, rhs: GridPoint) -> Bool {
+  static func ==(lhs: GridPoint, rhs: GridPoint) -> Bool {
     return lhs.x == rhs.x && lhs.y == rhs.y
   }
 }
