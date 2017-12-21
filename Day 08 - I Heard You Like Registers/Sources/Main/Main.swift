@@ -11,9 +11,7 @@ func get_puzzle() -> [String] {
 
 let puzzle = get_puzzle()
 let cpu    = Processor()
-LikableRegisters(puzzle)!.compute(on: cpu)
-if let max = cpu.max {
-  print("The register \(max.key) has the largest value of \(max.value).")
-} else {
-  print("Something went wrong.")
-}
+let all_time_max = LikableRegisters(puzzle)!.compute(on: cpu)!
+let final_max    = cpu.max!
+print("The register \(final_max.key) has the largest value of \(final_max.value),")
+print("and the register \(all_time_max.key) did hold \(all_time_max.value) at some point during the program execution.")

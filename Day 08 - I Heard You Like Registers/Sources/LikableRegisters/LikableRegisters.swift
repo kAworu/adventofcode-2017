@@ -1,8 +1,10 @@
 import Regex
 
 public class LikableRegisters {
+
   let instructions: [Instruction]
 
+  // for unit tests
   convenience init?(_ list: String) {
     let lines = list.split(separator: "\n").map(String.init)
     self.init(lines)
@@ -19,10 +21,10 @@ public class LikableRegisters {
     self.instructions = instructions
   }
 
-  public func compute(on cpu: Processor) {
-    for instruction in instructions {
-      cpu.execute(instruction)
-    }
+  // see Processor.execute
+  // XXX: maybe we should have a typealias for this registerish tuple.
+  public func compute(on cpu: Processor) -> (key: String, value: Int)? {
+    return cpu.execute(instructions)
   }
 }
 
@@ -34,13 +36,25 @@ public class Processor {
     self.default_value = default_value
   }
 
-  func execute(_ instruction: Instruction) {
-    instruction.execute(
-      fetch: { registers[$0] ?? default_value },
-      store: { registers[$0] = $1 }
-    )
+  // Returns the register that held the highest value through the execution of
+  // the given instructions. If no store was performed, nil is returned.
+  func execute(_ instructions: [Instruction]) -> (key: String, value: Int)? {
+    var all_time_max: (key: String, value: Int)? = nil
+    for instruction in instructions {
+      instruction.execute(
+        fetch: { registers[$0] ?? default_value },
+        store: { reg, val in
+          registers[reg] = val
+          if all_time_max == nil || all_time_max!.value < val {
+            all_time_max = (key: reg, value: val)
+          }
+        }
+      )
+    }
+    return all_time_max
   }
 
+  // Returns the register holding the current max value.
   public var max: (key: String, value: Int)? {
     return self.registers.max(by: { $0.value < $1.value })
   }
@@ -49,7 +63,7 @@ public class Processor {
 class Instruction {
   static let REGEX = Regex("([a-z]+) (inc|dec) (-?[0-9]+) if ([a-z]+) (<|<=|>|>=|==|!=) (-?[0-9]+)")
 
-  let cmp, mov: (reg: String, op: Operator, num: Int)
+  let mov, cmp: (reg: String, op: Operator, num: Int)
 
   init?(_ s: String) {
     guard let match = Instruction.REGEX.firstMatch(in: s) else {
