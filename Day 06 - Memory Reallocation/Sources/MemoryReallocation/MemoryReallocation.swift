@@ -3,7 +3,7 @@ public class MemoryReallocation {
 
   public init(_ blocks_per_bank: [Int]) {
     self.banks = blocks_per_bank.enumerated().map { (index, blocks) in
-      return Bank(id: index, blocks)
+      Bank(id: index, blocks)
     }
   }
 

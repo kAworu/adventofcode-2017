@@ -5,7 +5,7 @@ public class RecursiveCircus {
 
   convenience init?(_ list: String) {
     let lines = list.split(separator: "\n").map(String.init)
-    self.init(lines.filter { !$0.isEmpty })
+    self.init(lines)
   }
 
   public init?(_ lines: [String]) {
