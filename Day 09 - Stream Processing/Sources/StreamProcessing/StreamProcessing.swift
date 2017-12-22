@@ -7,8 +7,17 @@ public enum Stream {
   case garbage(content: String)
   case group(children: [Stream])
 
-  public func score() -> Int {
+  public var score: Int {
     return score(depth: 1)
+  }
+
+  public var garbage_count: Int {
+    switch self {
+      case .garbage(let content):
+        return content.count
+      case .group(let children):
+        return children.reduce(0) { $0 + $1.garbage_count }
+    }
   }
 
   func score(depth: Int) -> Int {

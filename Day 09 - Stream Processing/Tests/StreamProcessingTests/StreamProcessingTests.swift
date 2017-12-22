@@ -4,7 +4,6 @@ import XCTest
 class StreamProcessingTests: XCTestCase {
 
   func testPartOne() {
-    //XCTAssertEqual(StreamProcessing.parse("{}")!.score(), 1)
     [
       "{}": 1,
       "{{{}}}": 6,
@@ -16,12 +15,23 @@ class StreamProcessingTests: XCTestCase {
       "{{<a!>},{<a!>},{<a!>},{<ab>}}": 3,
     ].forEach() { test in
       let stream = StreamProcessing.parse(test.key)!
-      XCTAssertEqual(stream.score(), test.value)
+      XCTAssertEqual(stream.score, test.value)
     }
   }
 
   func testPartTwo() {
-    // TODO
+    [
+      "<>": 0,
+      "<random characters>": 17,
+      "<<<<>": 3,
+      "<{!>}>": 2,
+      "<!!>": 0,
+      "<!!!>>": 0,
+      "<{o\"i!a,<{i<a>": 10,
+    ].forEach() { test in
+      let stream = StreamProcessing.parse(test.key)!
+      XCTAssertEqual(stream.garbage_count, test.value)
+    }
   }
 }
 
