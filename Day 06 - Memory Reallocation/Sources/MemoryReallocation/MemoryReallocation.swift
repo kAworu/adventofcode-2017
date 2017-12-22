@@ -22,8 +22,8 @@ public class MemoryReallocation {
       for i in start...stop {
         banks[i % banks.count].blocks += 1
       }
-      cycle += 1
       desc = banks.description
+      cycle += 1
     }
     return (before_looping: cycle, loop: cycle - seen[desc]!)
   }
