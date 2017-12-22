@@ -28,9 +28,7 @@ class Row {
   }
 
   var checksum: Int {
-    guard let first = digits.first else {
-      return 0
-    }
+    guard let first = digits.first else { return 0 }
     let mm = digits.reduce((min: first, max: first)) { acc, x in
       if x > acc.max {
         return (min: acc.min, max: x)

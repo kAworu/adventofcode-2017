@@ -13,9 +13,7 @@ public class LikableRegisters {
   public init?(_ lines: [String]) {
     var instructions: [Instruction] = []
     for line in lines {
-      guard let instruction = Instruction(line) else {
-        return nil
-      }
+      guard let instruction = Instruction(line) else { return nil }
       instructions.append(instruction)
     }
     self.instructions = instructions
@@ -66,9 +64,7 @@ class Instruction {
   let mov, cmp: (reg: String, op: Operator, num: Int)
 
   init?(_ s: String) {
-    guard let match = Instruction.REGEX.firstMatch(in: s) else {
-      return nil
-    }
+    guard let match = Instruction.REGEX.firstMatch(in: s) else { return nil }
     self.mov = (
       reg: match.captures[0]!,
       op: Operator(rawValue: match.captures[1]!)!,

@@ -14,9 +14,7 @@ public class RecursiveCircus {
     // First pass: build all the programs populating only their name and weight
     // members (ignoring relationships for now).
     for line in lines {
-      guard let match = Program.LINE_REGEX.firstMatch(in: line) else {
-        return nil
-      }
+      guard let match = Program.LINE_REGEX.firstMatch(in: line) else { return nil }
       let (name, weight_str, children_str) = (
         match.captures[0]!,
         match.captures[1]!,
@@ -30,9 +28,7 @@ public class RecursiveCircus {
     // Second pass: build the parent → child relationships
     for parent in programs.values {
       for child_name in children[parent.name]! {
-        guard let child = programs[child_name] else {
-          return nil
-        }
+        guard let child = programs[child_name] else { return nil }
         parent → child
       }
     }
