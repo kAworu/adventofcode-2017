@@ -4,11 +4,17 @@ import XCTest
 class KnotHashTests: XCTestCase {
 
   func testPartOne() {
-    XCTAssertEqual(KnotHash(0...4).hash(lengths: [3, 4, 1, 5]), 12)
+    let hasher = KnotHash(0...4)
+    hasher.update([3, 4, 1, 5])
+    XCTAssertEqual(hasher[0], 3)
+    XCTAssertEqual(hasher[1], 4)
   }
 
   func testPartTwo() {
-    // TODO
+    XCTAssertEqual(KnotHash.hash(""),         "a2582a3a0e66e6e86e3812dcb672a272")
+    XCTAssertEqual(KnotHash.hash("AoC 2017"), "33efeb34ea91902bb2f59c9920caa6cd")
+    XCTAssertEqual(KnotHash.hash("1,2,3"),    "3efbe78a8d82f29979031a4aa0b16a9d")
+    XCTAssertEqual(KnotHash.hash("1,2,4"),    "63960835bcdc130f0b66d7ff4f6a5a8e")
   }
 }
 

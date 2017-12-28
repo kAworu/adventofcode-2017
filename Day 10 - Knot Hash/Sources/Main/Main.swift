@@ -1,5 +1,9 @@
 import KnotHash
 
-let puzzle = readLine()! // Acquire puzzle input from stdin.
-let hasher = KnotHash(0..<256)
-print("The hash is \(hasher.hash(lengths: puzzle)).")
+let puzzle  = readLine()! // Acquire puzzle input from stdin.
+let hasher  = KnotHash()
+let lengths = puzzle.split(separator: ",").map { UInt8($0)! }
+hasher.update(lengths)
+let (first, second) = (UInt32(hasher[0]!), UInt32(hasher[1]!))
+print("\(first) * \(second) = \(first * second),")
+print("and the Knot hash of the input is \(KnotHash.hash(puzzle)).")
