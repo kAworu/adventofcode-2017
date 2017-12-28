@@ -57,7 +57,10 @@ public class KnotHash {
         state[j] ^= state[i]
         state[i] ^= state[j]
       }
-      var (from, until) = (from, until)
+      var (from, until) = (from, until) // "deconst" from and until
+      // NOTE: the first part of the loop condition checks if `from` is not
+      // wrapped and `until` is wrapped because in that case `until` is lesser
+      // than `from` *but* we should continue to swap.
       while from < state.count && until >= state.count || until > from {
         swap(from % state.count, until % state.count)
         from  += 1
@@ -81,7 +84,8 @@ public class KnotHash {
     return stride(from: 0, to: limit, by: step).map { start in
       let stop = min(start + step, limit)
       let byte = state[start..<stop].reduce(0) { $0 ^ $1 }
-      let hex  = String(byte, radix: 16) // misere String(format: "%02x")
+      // misere String(format: "%02x")
+      let hex  = String(byte, radix: 16)
       return (hex.count == 1 ? "0" + hex : hex)
     }.joined()
   }
