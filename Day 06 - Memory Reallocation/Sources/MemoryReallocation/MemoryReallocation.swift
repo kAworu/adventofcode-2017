@@ -1,13 +1,18 @@
+// Our blocks-in-banks memory debugger.
 public class MemoryReallocation {
   let banks: [Bank]
 
+  // Create a new debugger given the blocks count per bank.
   public init(_ blocks_per_bank: [Int]) {
     self.banks = blocks_per_bank.enumerated().map { (index, blocks) in
-      Bank(id: index, blocks)
+      Bank(id: index, blocks: blocks)
     }
   }
 
-  public func debug() -> (before_looping: Int, loop: Int) {
+  // Perform a reallocation cycle until a blocks-in-banks configuration
+  // produced has been seen before. Returns a tuple containing
+  // (the cycle count before the loop occur, the cycle count inside the loop).
+  public func realloc() -> (before_looping: Int, loop: Int) {
     // banks state description to cycle number dictionary
     var seen: [String: Int] = [:]
     var banks = self.banks
@@ -29,18 +34,20 @@ public class MemoryReallocation {
   }
 }
 
+// Represents a memory bank.
 class Bank {
   let id: Int
   var blocks: Int
 
-  init (id: Int, _ blocks: Int) {
-    self.id     = id
+  init(id: Int, blocks: Int) {
+    self.id = id
     self.blocks = blocks
   }
 }
 
-// so that we can compare Bank and use [Bank].max()
+// Extend Comparable so that we may use [Bank].max()
 extension Bank: Comparable {
+  // Returns true if lhs is lesser than rhs, false otherwise.
   static func <(lhs: Bank, rhs: Bank) -> Bool {
     if lhs.blocks == rhs.blocks {
       // NOTE: tie won by the lowest-numbered memory bank
@@ -50,6 +57,7 @@ extension Bank: Comparable {
     }
   }
 
+  // Returns true if lhs and rhs are equals, false otherwise.
   static func ==(lhs: Bank, rhs: Bank) -> Bool {
     return lhs.id == rhs.id && lhs.blocks == rhs.blocks
   }
@@ -57,6 +65,7 @@ extension Bank: Comparable {
 
 // Bank serialization used to compare [Bank] state.
 extension Bank: CustomStringConvertible {
+  // Returns a String representation of this bank.
   var description: String {
     return "\(self.id):\(self.blocks)"
   }

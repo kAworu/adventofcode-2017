@@ -1,15 +1,18 @@
+// An experimental new kind of memory.
 public struct SpiralMemory {
   let target: Int
 
+  // Create a new Spiral Memory searcher for the given target.
   public init(_ target: Int) {
     self.target = target
   }
 
-  // NOTE: part one
-  // Each spirale "circle" ends with the square of an odd number. We'll call
-  // this number the circle's "level", and it follow that the circle level n
-  // contains the numbers between (n - 2) ** 2 + 1 and n ** 2.
+  // Returns the steps count between the access port and our target.
   public var snake_distance: Int {
+    // Each spirale "circle" ends with the square of an odd number. We'll call
+    // this number the circle's "level", and it follow that the circle level n
+    // contains the numbers between (n - 2) ** 2 + 1 and n ** 2.
+
     // first let's find out on which "circle level" is the target. The last
     // number of each circle is a square:
     // - the first is 9 ->   "level 3" (3 * 3 =  9),
@@ -32,7 +35,7 @@ public struct SpiralMemory {
     while target < min {
       (min, max) = (min - level + 1, min)
     }
-    let mid = min + (max - min) / 2 // note: (max - min) is even.
+    let mid = min + (max - min) / 2 // NOTE: (max - min) is even.
     // the drift is the absolute diff between the number at the center of the
     // side and our `target'.
     let drift = Int((target - mid).magnitude)
@@ -41,12 +44,13 @@ public struct SpiralMemory {
     return level / 2 + drift
   }
 
-  // NOTE: part two
+  // Returns the first value written larger than our target by the programs
+  // when stress testing the system.
   public var stress_test_gt: Int {
     var p         = GridPoint(x: 0, y: 0) // our current position
     var spiral    = [p: 1]
     var direction = CompassPoint.east
-    while spiral[p]! <= target {
+    while (spiral[p]!) <= target {
       p = p[direction] // update our position
       let (e,  n,  w,  s)  = (p[.east], p[.north], p[.west], p[.south])
       let (ne, nw, se, sw) = (n[.east], n[.west],  s[.east], s[.west])

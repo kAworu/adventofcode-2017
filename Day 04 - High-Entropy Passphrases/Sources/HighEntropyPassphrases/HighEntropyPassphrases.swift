@@ -1,18 +1,18 @@
+// Passphrase security checker.
 public class HighEntropyPassphrases {
-  let passphrase: [String]
+  let words: [String]
 
+  // Create a new checker for the given passphrase.
   public init (_ passphrase: String) {
-    self.passphrase = passphrase.split(separator: " ").map(String.init)
+    self.words = passphrase.split(separator: " ").map(String.init)
   }
 
-  // NOTE: part one
   // Returns false if this passphrase contains no duplicate words,
   // true otherwise.
   public var has_duplicate_word: Bool {
     return has_duplicate { $0 }
   }
 
-  // NOTE: part two
   // Returns false if this passphrase contains no two words that are anagrams
   // of each other, true otherwise.
   public var has_anagram: Bool {
@@ -21,10 +21,10 @@ public class HighEntropyPassphrases {
 
   // Returns true if all words in our passphrase have a different image through
   // `f', false otherwise.
-  // NOTE: No guarantee that `f' will be invoked with every words.
+  // NOTE: No guarantee that `f' will be invoked with every passphrase's word.
   internal func has_duplicate(_ f: (String) -> String) -> Bool {
     var seen: Set<String> = []
-    for word in passphrase {
+    for word in words {
       let entry = f(word)
       if seen.contains(entry) {
         return true

@@ -1,13 +1,16 @@
 import Regex
 
+// The program tower.
 public class RecursiveCircus {
   let programs: Set<Program>
 
+  // Create a new tower, given a program per line.
   convenience init?(_ list: String) {
     let lines = list.split(separator: "\n").map(String.init)
     self.init(lines)
   }
 
+  // Create a new tower from a list of program description.
   public init?(_ lines: [String]) {
     var programs: [String: Program]  = [:] // name to Program dict
     var children: [String: [String]] = [:] // name to children names dict
@@ -36,7 +39,7 @@ public class RecursiveCircus {
     self.programs = Set(programs.values)
   }
 
-  // NOTE: part one
+  // Returns the "root" program of this tower (if any).
   public var bottom_program: Program? {
     return programs.first(where: { $0.is_parent && !$0.is_child })
   }
@@ -45,6 +48,7 @@ public class RecursiveCircus {
 // parent to child relationship operator
 infix operator →: ComparisonPrecedence
 
+// Represents a program from the tower.
 public class Program {
   static let LINE_REGEX = Regex("([a-z]+) \\(([0-9]+)\\)(.*)?")
   static let NAME_REGEX = Regex("[a-z]+")
@@ -79,7 +83,6 @@ public class Program {
     return parent != nil
   }
 
-  // NOTE: part two
   // Returns the weight of this program and all programs above it iff it is
   // balanced, throws a `ProgrammingError.invalidWeight` otherwise.
   public func total_weight() throws -> Int {

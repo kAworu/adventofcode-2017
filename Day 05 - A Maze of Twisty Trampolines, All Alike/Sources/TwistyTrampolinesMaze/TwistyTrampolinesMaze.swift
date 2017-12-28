@@ -1,16 +1,19 @@
+// A maze solver to help the CPU to find the exit.
 public class TwistyTrampolinesMaze {
   let instructions: [Int]
 
+  // Create a new solver from a list of jump offsets instructions.
   public init(_ instructions: [Int]) {
     self.instructions = instructions
   }
 
-  // NOTE: part one
+  // After each jump, the offset of that instruction increases by one.
   public var strange_jumps_exit: Int {
     return step_count_to_exit { $0 + 1 }
   }
 
-  // NOTE: part two
+  // After each jump, the offset of that instruction increase (or decrease) by
+  // one if it was lesser than three (respectively three or more).
   public var stranger_jumps_exit: Int {
     return step_count_to_exit { $0 + ($0 >= 3 ? -1 : +1) }
   }
