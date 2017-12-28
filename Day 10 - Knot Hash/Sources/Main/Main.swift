@@ -6,4 +6,5 @@ let lengths = puzzle.split(separator: ",").map { UInt8($0)! }
 hasher.update(lengths)
 let (first, second) = (UInt32(hasher[0]!), UInt32(hasher[1]!))
 print("\(first) * \(second) = \(first * second),")
-print("and the Knot hash of the input is \(KnotHash.hash(puzzle)).")
+let hash = KnotHash.hash(puzzle)
+print("and the Knot hash of the input is \(hash).")

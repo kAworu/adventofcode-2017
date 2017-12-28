@@ -36,10 +36,14 @@ public class KnotHash {
     self.skip_size = 0
   }
 
-  // Returns the internal state byte at the requested index or nil if it is out
-  // of bounds.
-  public subscript(_ index: Int) -> UInt8? {
-    return (..<state.count).contains(index) ? state[index] : nil
+  // Exposed (i.e. public) access to the first two bytes of the internal state.
+  // Returns nil when the requested index is out of bound.
+  public subscript(index: Int) -> UInt8? {
+    if [0, 1].contains(index) && index < state.count {
+      return state[index]
+    } else {
+      return nil
+    }
   }
 
   // Perform one round of the Knot Hash algorithm.
