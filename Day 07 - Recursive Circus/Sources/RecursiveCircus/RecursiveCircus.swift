@@ -1,16 +1,20 @@
 import Regex
 
+// parent to child relationship operator (north east arrow).
+infix operator ↗ : ComparisonPrecedence
+
 // The program tower.
 public class RecursiveCircus {
   let programs: Set<Program>
 
-  // Create a new tower, given a program per line.
+  // Create a tower, given a program per line. Returns nil on parsing failure.
   convenience init?(_ list: String) {
     let lines = list.split(separator: "\n").map(String.init)
     self.init(lines)
   }
 
-  // Create a new tower from a list of program description.
+  // Create a tower from a list of program description. Returns nil if any line
+  // was not parsed successfully.
   public init?(_ lines: [String]) {
     var programs: [String: Program]  = [:] // name to Program dict
     var children: [String: [String]] = [:] // name to children names dict
@@ -28,11 +32,11 @@ public class RecursiveCircus {
         $0.matchedString
       }
     }
-    // Second pass: build the parent → child relationships
+    // Second pass: build the parent ↗ child relationships
     for parent in programs.values {
       for child_name in children[parent.name]! {
         guard let child = programs[child_name] else { return nil }
-        parent → child
+        parent ↗ child
       }
     }
     // we're done
@@ -45,16 +49,13 @@ public class RecursiveCircus {
   }
 }
 
-// parent to child relationship operator
-infix operator →: ComparisonPrecedence
-
 // Represents a program from the tower.
 public class Program {
   static let LINE_REGEX = Regex("([a-z]+) \\(([0-9]+)\\)(.*)?")
   static let NAME_REGEX = Regex("[a-z]+")
 
   // Create a parent to child relationship. Returns `child` to allow chaining.
-  @discardableResult static func →(parent: Program, child: Program) -> Program {
+  @discardableResult static func ↗ (parent: Program, child: Program) -> Program {
     parent.children.insert(child)
     child.parent = parent
     return child

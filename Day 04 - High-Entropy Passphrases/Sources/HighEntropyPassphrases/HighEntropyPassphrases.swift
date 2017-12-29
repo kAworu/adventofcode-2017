@@ -53,7 +53,7 @@ extension CountedChars: CustomStringConvertible {
   // build a description string with each character prefixed by its count,
   // sorted in alphabetical order.
   var description: String {
-    return Array(counts.keys).sorted(by: <).map { c in
+    return Array(counts.keys).sorted().map { c in
       "\(counts[c]!)\(c)"
     }.joined()
   }

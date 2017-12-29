@@ -31,8 +31,8 @@ class Row {
   // Returns the difference between this row's maximum and minimum number.
   // Returns -1 when this row is empty.
   var checksum: Int {
-    guard let min = numbers.min(by: <) else { return -1 }
-    guard let max = numbers.max(by: <) else { return -1 }
+    guard let min = numbers.min() else { return -1 }
+    guard let max = numbers.max() else { return -1 }
     return (max - min)
   }
 

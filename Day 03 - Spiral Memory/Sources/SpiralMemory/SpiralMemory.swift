@@ -88,10 +88,7 @@ public struct SpiralMemory {
 // stolen from
 // https://developer.apple.com/library/content/documentation/Swift/Conceptual/Swift_Programming_Language/Enumerations.html
 enum CompassPoint {
-  case north
-  case south
-  case east
-  case west
+  case north, south, east, west
 }
 
 // hacked from https://developer.apple.com/documentation/swift/hashable
@@ -102,14 +99,10 @@ struct GridPoint {
   // give access to neighbour points
   subscript(_ direction: CompassPoint) -> GridPoint {
       switch direction {
-        case .east:
-          return GridPoint(x: x + 1, y: y)
-        case .north:
-          return GridPoint(x: x, y: y + 1)
-        case .west:
-          return GridPoint(x: x - 1, y: y)
-        case .south:
-          return GridPoint(x: x, y: y - 1)
+        case .east:  return GridPoint(x: x + 1, y: y)
+        case .north: return GridPoint(x: x, y: y + 1)
+        case .west:  return GridPoint(x: x - 1, y: y)
+        case .south: return GridPoint(x: x, y: y - 1)
       }
       // NOTREACHED
   }
