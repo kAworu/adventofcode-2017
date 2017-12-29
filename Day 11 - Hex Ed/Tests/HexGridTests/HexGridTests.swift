@@ -4,14 +4,17 @@ import XCTest
 class HexGridTests: XCTestCase {
 
   func testPartOne() {
-    XCTAssertEqual(HexGrid.walk(path: "ne,ne,ne").distance(from: .zero),       3)
-    XCTAssertEqual(HexGrid.walk(path: "ne,ne,sw,sw").distance(from: .zero),    0)
-    XCTAssertEqual(HexGrid.walk(path: "ne,ne,s,s").distance(from: .zero),      2)
-    XCTAssertEqual(HexGrid.walk(path: "se,sw,se,sw,sw").distance(from: .zero), 3)
+    XCTAssertEqual(HexGrid.walk("ne,ne,ne").final_distance,       3)
+    XCTAssertEqual(HexGrid.walk("ne,ne,sw,sw").final_distance,    0)
+    XCTAssertEqual(HexGrid.walk("ne,ne,s,s").final_distance,      2)
+    XCTAssertEqual(HexGrid.walk("se,sw,se,sw,sw").final_distance, 3)
   }
 
   func testPartTwo() {
-    // TODO
+    XCTAssertEqual(HexGrid.walk("ne,ne,ne").furthest_distance,       3)
+    XCTAssertEqual(HexGrid.walk("ne,ne,sw,sw").furthest_distance,    2)
+    XCTAssertEqual(HexGrid.walk("ne,ne,s,s").furthest_distance,      2)
+    XCTAssertEqual(HexGrid.walk("se,sw,se,sw,sw").furthest_distance, 3)
   }
 }
 
