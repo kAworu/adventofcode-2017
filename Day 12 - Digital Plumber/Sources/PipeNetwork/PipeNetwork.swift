@@ -1,21 +1,51 @@
 import Regex
 
-// program pipe relationship operator (left right arrow).
+// Set union operator, syntaxic sugar for Set.union(_:)
+// see https://en.wikibooks.org/wiki/Unicode/List_of_useful_symbols#Sets
+infix operator ∪ : AdditionPrecedence
+func ∪<T>(lhs: Set<T>, rhs: Set<T>) -> Set<T> {
+  return lhs.union(rhs)
+}
+
+// Compound assignment Set union operator, syntaxic sugar for Set.formUnion(_:)
+// see https://en.wikibooks.org/wiki/Unicode/List_of_useful_symbols#Sets
+infix operator ∪= : AssignmentPrecedence
+func ∪=<T>(lhs: inout Set<T>, rhs: Set<T>) {
+  lhs.formUnion(rhs)
+}
+
+// Set difference operator, syntaxic sugar for Set.subtracted(_:)
+// see https://en.wikibooks.org/wiki/Unicode/List_of_useful_symbols#Sets
+// and https://en.wikipedia.org/wiki/Complement_(set_theory)
+infix operator ∖ : AdditionPrecedence
+func ∖<T>(lhs: Set<T>, rhs: Set<T>) -> Set<T> {
+  return lhs.subtracting(rhs)
+}
+
+// Compound assignment Set union operator, syntaxic sugar for Set.formUnion(_:)
+// see https://en.wikibooks.org/wiki/Unicode/List_of_useful_symbols#Sets
+infix operator ∖= : AssignmentPrecedence
+func ∖=<T>(lhs: inout Set<T>, rhs: Set<T>) {
+  lhs.subtract(rhs)
+}
+
+// Program pipe relationship operator (left right arrow).
 infix operator ↔ : ComparisonPrecedence
 
 // The programs pipe network.
 public class PipeNetwork {
-  public typealias Id = UInt
+  public typealias Id = UInt // Program ID type
 
   let programs: Set<Program>
 
-  // Create a network, given a program per line.
+  // Create a network, given a program per line. Returns nil if parsing failed.
   convenience init?(_ list: String) {
     let lines = list.split(separator: "\n").map(String.init)
     self.init(lines)
   }
 
-  // Create a network from a list of program description.
+  // Create a network from a list of program description. Returns nil if any
+  // line could not be parsed successfully.
   public init?(_ lines: [String]) {
     var programs: [Id: Program] = [:] // ID to Program dict
     var neighbours: [Id: [Id]]  = [:] // ID to neighbours ID dict
@@ -43,6 +73,18 @@ public class PipeNetwork {
   // Find a program by ID.
   public subscript(program pid: Id) -> Program? {
     return programs.first(where: { $0.id == pid })
+  }
+
+  // Returns the Set of the different program groups.
+  public var groups: Set<Set<Program>> {
+    var groups: Set<Set<Program>> = []
+    var to_visit = self.programs
+    while let program = to_visit.popFirst() {
+      let group = program.group
+      groups.insert(group)
+      to_visit ∖= group
+    }
+    return groups
   }
 
   // Represents a program from the pipe network.
@@ -91,18 +133,4 @@ extension PipeNetwork.Program: Hashable {
   public static func ==(lhs: PipeNetwork.Program, rhs: PipeNetwork.Program) -> Bool {
     return lhs.id == rhs.id
   }
-}
-
-// Set union operator, syntaxic sugar for Set.union(_:)
-// see https://en.wikibooks.org/wiki/Unicode/List_of_useful_symbols#Sets
-infix operator ∪ : AdditionPrecedence
-func ∪<T>(lhs: Set<T>, rhs: Set<T>) -> Set<T> {
-  return lhs.union(rhs)
-}
-
-// Compound assignment Set union operator, syntaxic sugar for Set.formUnion(_:)
-// see https://en.wikibooks.org/wiki/Unicode/List_of_useful_symbols#Sets
-infix operator ∪= : AssignmentPrecedence
-func ∪=<T>(lhs: inout Set<T>, rhs: Set<T>) {
-  lhs.formUnion(rhs)
 }

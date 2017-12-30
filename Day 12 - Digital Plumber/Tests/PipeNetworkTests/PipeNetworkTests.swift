@@ -19,7 +19,8 @@ class PipeNetworkTests: XCTestCase {
   }
 
   func testPartTwo() {
-    // TODO
+    let network = PipeNetwork(PipeNetworkTests.PUZZLE)!
+    XCTAssertEqual(network.groups.count, 2)
   }
 }
 
