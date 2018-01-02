@@ -32,23 +32,23 @@ public class MemoryReallocation {
     }
     return (before_looping: cycle, loop: cycle - seen[desc]!)
   }
-}
 
-// Represents a memory bank.
-class Bank {
-  let id: Int
-  var blocks: Int
+  // Represents a memory bank.
+  class Bank {
+    let id: Int
+    var blocks: Int
 
-  init(id: Int, blocks: Int) {
-    self.id = id
-    self.blocks = blocks
+    init(id: Int, blocks: Int) {
+      self.id = id
+      self.blocks = blocks
+    }
   }
 }
 
 // Extend Comparable so that we may use [Bank].max()
-extension Bank: Comparable {
+extension MemoryReallocation.Bank: Comparable {
   // Returns true if lhs is lesser than rhs, false otherwise.
-  static func <(lhs: Bank, rhs: Bank) -> Bool {
+  static func <(lhs: MemoryReallocation.Bank, rhs: MemoryReallocation.Bank) -> Bool {
     if lhs.blocks == rhs.blocks {
       // NOTE: tie won by the lowest-numbered memory bank
       return lhs.id > rhs.id
@@ -58,13 +58,13 @@ extension Bank: Comparable {
   }
 
   // Returns true if lhs and rhs are equals, false otherwise.
-  static func ==(lhs: Bank, rhs: Bank) -> Bool {
+  static func ==(lhs: MemoryReallocation.Bank, rhs: MemoryReallocation.Bank) -> Bool {
     return lhs.id == rhs.id && lhs.blocks == rhs.blocks
   }
 }
 
 // Bank serialization used to compare [Bank] state.
-extension Bank: CustomStringConvertible {
+extension MemoryReallocation.Bank: CustomStringConvertible {
   // Returns a String representation of this bank.
   var description: String {
     return "\(self.id):\(self.blocks)"

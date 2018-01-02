@@ -16,6 +16,6 @@ print("The bottom program is \(bottom),")
 do {
   let tower_weight = try bottom.total_weight()
   print("and the tower's weight is \(tower_weight).")
-} catch let err as InvalidWeightError {
+} catch let err as RecursiveCircus.InvalidWeightError {
   print("and \(err.culprit) corrected weight is \(err.corrected_weight).")
 }

@@ -47,9 +47,9 @@ public struct SpiralMemory {
   // Returns the first value written larger than our target by the programs
   // when stress testing the system.
   public var stress_test_gt: Int {
-    var p         = GridPoint(x: 0, y: 0) // our current position
+    var p         = Point(x: 0, y: 0) // our current position
     var spiral    = [p: 1]
-    var direction = CompassPoint.east
+    var direction = Direction.east
     while (spiral[p]!) <= target {
       p = p[direction] // update our position
       let (e,  n,  w,  s)  = (p[.east], p[.north], p[.west], p[.south])
@@ -83,37 +83,37 @@ public struct SpiralMemory {
     }
     return spiral[p]!
   }
-}
 
-// stolen from
-// https://developer.apple.com/library/content/documentation/Swift/Conceptual/Swift_Programming_Language/Enumerations.html
-enum CompassPoint {
-  case north, south, east, west
-}
+  // stolen from
+  // https://developer.apple.com/library/content/documentation/Swift/Conceptual/Swift_Programming_Language/Enumerations.html
+  enum Direction {
+    case north, south, east, west
+  }
 
-// hacked from https://developer.apple.com/documentation/swift/hashable
-struct GridPoint {
-  let x: Int
-  let y: Int
+  // hacked from https://developer.apple.com/documentation/swift/hashable
+  struct Point {
+    let x: Int
+    let y: Int
 
-  // give access to neighbour points
-  subscript(_ direction: CompassPoint) -> GridPoint {
-      switch direction {
-        case .east:  return GridPoint(x: x + 1, y: y)
-        case .north: return GridPoint(x: x, y: y + 1)
-        case .west:  return GridPoint(x: x - 1, y: y)
-        case .south: return GridPoint(x: x, y: y - 1)
-      }
-      // NOTREACHED
+    // give access to neighbour points
+    subscript(_ direction: Direction) -> Point {
+        switch direction {
+          case .east:  return Point(x: x + 1, y: y)
+          case .north: return Point(x: x, y: y + 1)
+          case .west:  return Point(x: x - 1, y: y)
+          case .south: return Point(x: x, y: y - 1)
+        }
+        // NOTREACHED
+    }
   }
 }
 
-extension GridPoint: Hashable {
+extension SpiralMemory.Point: Hashable {
   var hashValue: Int {
     return x.hashValue ^ y.hashValue &* 16777619
   }
 
-  static func ==(lhs: GridPoint, rhs: GridPoint) -> Bool {
+  static func ==(lhs: SpiralMemory.Point, rhs: SpiralMemory.Point) -> Bool {
     return lhs.x == rhs.x && lhs.y == rhs.y
   }
 }

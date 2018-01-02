@@ -33,23 +33,23 @@ public class HighEntropyPassphrases {
     }
     return false
   }
-}
 
-// Helper class for part 2, anagrams will have the same CountedChars string
-// description.
-class CountedChars {
-  let counts: [Character: Int]
+  // Helper class for part 2, anagrams will have the same CountedChars string
+  // description.
+  class CountedChars {
+    let counts: [Character: Int]
 
-  init(_ word: String) {
-      var counts: [Character: Int] = [:]
-      for c in word {
-        counts[c, default: 0] += 1
-      }
-      self.counts = counts
+    init(_ word: String) {
+        var counts: [Character: Int] = [:]
+        for c in word {
+          counts[c, default: 0] += 1
+        }
+        self.counts = counts
+    }
   }
 }
 
-extension CountedChars: CustomStringConvertible {
+extension HighEntropyPassphrases.CountedChars: CustomStringConvertible {
   // build a description string with each character prefixed by its count,
   // sorted in alphabetical order.
   var description: String {

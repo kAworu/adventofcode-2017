@@ -21,7 +21,7 @@ public class TwistyTrampolinesMaze {
   // follow the maze instructions using the provided `update' function to
   // compute the new instruction value under `pc' after each jump. Returns the
   // number of step performed before we reached an exit.
-  internal func step_count_to_exit(_ update: (Int) -> Int) -> Int {
+  func step_count_to_exit(_ update: (Int) -> Int) -> Int {
     var (pc, nstep, instructions) = (0, 0, self.instructions)
     while pc >= 0 && pc < instructions.count {
       let instruction = instructions[pc]

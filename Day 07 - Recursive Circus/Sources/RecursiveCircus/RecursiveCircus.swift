@@ -47,100 +47,100 @@ public class RecursiveCircus {
   public var bottom_program: Program? {
     return programs.first(where: { $0.is_parent && !$0.is_child })
   }
-}
 
-// Represents a program from the tower.
-public class Program {
-  static let LINE_REGEX = Regex("([a-z]+) \\(([0-9]+)\\)(.*)?")
-  static let NAME_REGEX = Regex("[a-z]+")
+  // Represents a program from the tower.
+  public class Program {
+    static let LINE_REGEX = Regex("([a-z]+) \\(([0-9]+)\\)(.*)?")
+    static let NAME_REGEX = Regex("[a-z]+")
 
-  // Create a parent to child relationship. Returns `child` to allow chaining.
-  @discardableResult static func ↗ (parent: Program, child: Program) -> Program {
-    parent.children.insert(child)
-    child.parent = parent
-    return child
-  }
-
-  let name: String
-  let weight: Int
-  var parent: Program?
-  var children: Set<Program>
-
-  // Create a new program without parent nor children.
-  init(name: String, weight: Int) {
-    self.name     = name
-    self.weight   = weight
-    self.parent   = nil
-    self.children = []
-  }
-
-  // Returns true if this program has at least one child, false otherwise.
-  var is_parent: Bool {
-    return !children.isEmpty
-  }
-
-  // Returns true if this program has a parent, false otherwise.
-  var is_child: Bool {
-    return parent != nil
-  }
-
-  // Returns the weight of this program and all programs above it iff it is
-  // balanced, throws a `ProgrammingError.invalidWeight` otherwise.
-  public func total_weight() throws -> Int {
-    // this will throw if any program above self is unbalanced.
-    let weights = try Dictionary(grouping: children, by: {
-      try $0.total_weight()
-    })
-    // Here all our children are balanced themselves. If we have no children or
-    // all have the same weight, then we are balanced too.
-    if weights.count < 2 {
-      return weights.reduce(self.weight) { acc, element in
-        return acc + element.key * element.value.count
-      }
+    // Create a parent to child relationship. Returns `child` to allow chaining.
+    @discardableResult static func ↗ (parent: Program, child: Program) -> Program {
+      parent.children.insert(child)
+      child.parent = parent
+      return child
     }
-    // Here we are unbalanced. The child needing a correction (the culprit) is
-    // the sole of our children having a different total_weight than the
-    // others. In our grouping it is the one alone for its total_weight, i.e.
-    // the entry in `weights` having the minimum (only one) program as value.
-    let min     = weights.min(by: { $0.value.count < $1.value.count })!
-    let max     = weights.max(by: { $0.value.count < $1.value.count })!
-    let culprit = min.value.first!  // min.value is an array of size 1 here
-    let delta   = max.key - min.key // keys are total_weight in our grouping
-    throw InvalidWeightError(culprit: culprit, delta: delta)
+
+    let name: String
+    let weight: Int
+    var parent: Program?
+    var children: Set<Program>
+
+    // Create a new program without parent nor children.
+    init(name: String, weight: Int) {
+      self.name     = name
+      self.weight   = weight
+      self.parent   = nil
+      self.children = []
+    }
+
+    // Returns true if this program has at least one child, false otherwise.
+    var is_parent: Bool {
+      return !children.isEmpty
+    }
+
+    // Returns true if this program has a parent, false otherwise.
+    var is_child: Bool {
+      return parent != nil
+    }
+
+    // Returns the weight of this program and all programs above it iff it is
+    // balanced, throws a `ProgrammingError.invalidWeight` otherwise.
+    public func total_weight() throws -> Int {
+      // this will throw if any program above self is unbalanced.
+      let weights = try Dictionary(grouping: children, by: {
+        try $0.total_weight()
+      })
+      // Here all our children are balanced themselves. If we have no children or
+      // all have the same weight, then we are balanced too.
+      if weights.count < 2 {
+        return weights.reduce(self.weight) { acc, element in
+          return acc + element.key * element.value.count
+        }
+      }
+      // Here we are unbalanced. The child needing a correction (the culprit) is
+      // the sole of our children having a different total_weight than the
+      // others. In our grouping it is the one alone for its total_weight, i.e.
+      // the entry in `weights` having the minimum (only one) program as value.
+      let min     = weights.min(by: { $0.value.count < $1.value.count })!
+      let max     = weights.max(by: { $0.value.count < $1.value.count })!
+      let culprit = min.value.first!  // min.value is an array of size 1 here
+      let delta   = max.key - min.key // keys are total_weight in our grouping
+      throw InvalidWeightError(culprit: culprit, delta: delta)
+    }
   }
-}
 
-// see Program.total_weight()
-public class InvalidWeightError: Error {
-  public let culprit: Program
-  let delta: Int
+  // see Program.total_weight()
+  public class InvalidWeightError: Error {
+    public let culprit: Program
+    let delta: Int
 
-  init(culprit: Program, delta: Int) {
-    self.culprit = culprit
-    self.delta   = delta
-  }
+    init(culprit: Program, delta: Int) {
+      self.culprit = culprit
+      self.delta   = delta
+    }
 
-  // Returns the corrected weight of our culprit.
-  public var corrected_weight: Int {
-    return culprit.weight + delta
+    // Returns the corrected weight of our culprit.
+    public var corrected_weight: Int {
+      return culprit.weight + delta
+    }
   }
 }
 
 // "delegate" hashValue, == and String conversion to the Program's name and
 // expose them.
 
-extension Program: Hashable {
+extension RecursiveCircus.Program: Hashable {
   public var hashValue: Int {
     return name.hashValue
   }
 
   // NOTE: assume that there are no two programs with the same name.
-  public static func ==(lhs: Program, rhs: Program) -> Bool {
+  public static func ==(lhs: RecursiveCircus.Program, rhs: RecursiveCircus.Program) -> Bool {
     return lhs.name == rhs.name
   }
 }
 
-extension Program: CustomStringConvertible {
+extension RecursiveCircus.Program: CustomStringConvertible {
   public var description: String {
     return name
   }

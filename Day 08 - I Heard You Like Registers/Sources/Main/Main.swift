@@ -10,7 +10,7 @@ func get_puzzle() -> [String] {
 }
 
 let puzzle = get_puzzle()
-let cpu    = Processor()
+let cpu    = LikableRegisters.Processor()
 let all_time_max = LikableRegisters(puzzle)!.compute(on: cpu)!
 let final_max    = cpu.max!
 print("The register \(final_max.key) has the largest value of \(final_max.value),")

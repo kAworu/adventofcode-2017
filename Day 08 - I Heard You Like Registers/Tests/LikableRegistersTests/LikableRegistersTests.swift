@@ -11,7 +11,7 @@ class LikableRegistersTests: XCTestCase {
 
   func testPartOne() {
     let program = LikableRegisters(LikableRegistersTests.PUZZLE)!
-    let cpu = Processor()
+    let cpu = LikableRegisters.Processor()
     let _ = program.compute(on: cpu)
     XCTAssertEqual(cpu.max?.key, "a")
     XCTAssertEqual(cpu.max?.value, 1)
@@ -19,7 +19,7 @@ class LikableRegistersTests: XCTestCase {
 
   func testPartTwo() {
     let program = LikableRegisters(LikableRegistersTests.PUZZLE)!
-    let cpu = Processor()
+    let cpu = LikableRegisters.Processor()
     let all_time_max = program.compute(on: cpu)
     XCTAssertEqual(all_time_max?.key, "c")
     XCTAssertEqual(all_time_max?.value, 10)

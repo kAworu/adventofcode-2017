@@ -44,7 +44,7 @@ public class PipeNetwork {
     self.init(lines)
   }
 
-  // Create a network from a list of program description. Returns nil if any
+  // Create a network from an array of program description. Returns nil if any
   // line could not be parsed successfully.
   public init?(_ lines: [String]) {
     var programs: [Id: Program] = [:] // ID to Program dict
