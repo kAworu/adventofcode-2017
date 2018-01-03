@@ -11,11 +11,13 @@ class PacketScannersTests: XCTestCase {
 
   func testPartOne() {
     let firewall = PacketScanners(PacketScannersTests.PUZZLE)
-    XCTAssertEqual(firewall.trip_severity, 24)
+    XCTAssertEqual(firewall.trip_severity(delay:  0), 24)
+    XCTAssertEqual(firewall.trip_severity(delay: 10),  0)
   }
 
   func testPartTwo() {
-    // TODO
+    let firewall = PacketScanners(PacketScannersTests.PUZZLE)
+    XCTAssertEqual(firewall.safe_trip_delay, 10)
   }
 }
 
