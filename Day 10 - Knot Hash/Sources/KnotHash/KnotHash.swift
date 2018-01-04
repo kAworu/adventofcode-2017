@@ -1,17 +1,19 @@
+import Foundation
+
 // Knot Hasher.
 public class KnotHash {
   public static let ROUNDS = 64
   public static let STD_LENGTH_SUFFIX: [UInt8] = [17, 31, 73, 47, 23]
   public static let BLOCK_SIZE = 16
 
-  // Returns the given String's Knot Hash.
-  public static func hash(_ bytes: String) -> String {
+  // Returns the given String's KnotHash result.
+  public static func hash(_ bytes: String) -> Result {
     let lengths = [UInt8](bytes.utf8) + STD_LENGTH_SUFFIX
     let hasher  = KnotHash()
     for _ in 0..<ROUNDS {
       hasher.update(lengths)
     }
-    return hasher.finalized()
+    return hasher.result()
   }
 
   // hasher's internal state members
@@ -77,16 +79,32 @@ public class KnotHash {
 
   // Returns the standard hexadecimal string representation of the current
   // internal state.
-  func finalized() -> String {
+  func result() -> Result {
     let step  = KnotHash.BLOCK_SIZE
     let limit = state.count
     // see https://stackoverflow.com/a/38156873/7936137
-    return stride(from: 0, to: limit, by: step).map { start in
+    let bytes: [UInt8] = stride(from: 0, to: limit, by: step).map { start in
       let stop = min(start + step, limit)
       let byte = state[start..<stop].reduce(0) { $0 ^ $1 }
-      // misere String(format: "%02x")
-      let hex  = String(byte, radix: 16)
-      return (hex.count == 1 ? "0" + hex : hex)
-    }.joined()
+      return byte
+    }
+    return Result(bytes)
+  }
+
+  // Represent a finalized KnotHash result.
+  public class Result {
+    public let bytes: [UInt8]
+
+    // Create a result givens its bytes.
+    init(_ bytes: [UInt8]) {
+      self.bytes = bytes
+    }
+  }
+}
+
+// Standard hexadecimal String representation of a KnotHash Result.
+extension KnotHash.Result: CustomStringConvertible {
+  public var description: String {
+    return bytes.map { String(format: "%02x", $0) }.joined()
   }
 }
