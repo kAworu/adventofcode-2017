@@ -185,7 +185,7 @@ the layer once you were already there.
 The **severity** of getting caught on a layer is equal to its **depth**
 multiplied by its **range**. (Ignore layers in which you do not get caught.)
 The severity of the whole trip is the sum of these values. In the example
-above, the trip severity is `0*3 + 6*4 = **24**`.
+above, the trip severity is <code>0*3 + 6*4 = <strong>24</strong></code>.
 
 Given the details of the firewall you've recorded, if you leave immediately,
 **what is the severity of your whole trip**?

@@ -1,3 +1,5 @@
+import Foundation
+
 // The big firewall we need to cross.
 public class PacketScanners {
   let layers: [Layer]
@@ -72,9 +74,6 @@ public class PacketScanners {
 }
 
 // stolen from https://stackoverflow.com/a/41893447
-
-import Foundation
-
 extension String {
   var trimmed: String {
     return self.trimmingCharacters(in: .whitespaces)
