@@ -2,13 +2,14 @@ import XCTest
 @testable import DiskDefragmentation
 
 class DiskDefragmentationTests: XCTestCase {
+  static let disk = DiskDefragmentation(key: "flqrgnkx")
 
   func testPartOne() {
-    XCTAssertEqual(DiskDefragmentation(key: "flqrgnkx").used_square_count, 8108)
+    XCTAssertEqual(DiskDefragmentationTests.disk.used_square_count, 8108)
   }
 
   func testPartTwo() {
-    // TODO
+    XCTAssertEqual(DiskDefragmentationTests.disk.region_count, 1242)
   }
 }
 
