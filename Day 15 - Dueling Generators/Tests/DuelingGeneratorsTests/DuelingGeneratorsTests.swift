@@ -11,7 +11,9 @@ class DuelingGeneratorsTests: XCTestCase {
   }
 
   func testPartTwo() {
-    // TODO
+    XCTAssertEqual(DuelingGenerators(A: 65, B: 8921).picky_final_count(sample: 1055), 0)
+    XCTAssertEqual(DuelingGenerators(A: 65, B: 8921).picky_final_count(sample: 1056), 1)
+    XCTAssertEqual(DuelingGenerators(A: 65, B: 8921).picky_final_count(), 309)
   }
 }
 

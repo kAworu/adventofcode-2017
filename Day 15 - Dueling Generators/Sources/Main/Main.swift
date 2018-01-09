@@ -1,7 +1,6 @@
 import DuelingGenerators
 import Regex
 
-
 // Acquire puzzle input from stdin.
 func get_puzzle() -> (A: Int, B: Int)? {
   let re = Regex("Generator (A|B) starts with ([0-9]+)")
@@ -20,4 +19,5 @@ func get_puzzle() -> (A: Int, B: Int)? {
 
 let puzzle = get_puzzle()!
 let generators = DuelingGenerators(A: puzzle.A, B: puzzle.B)
-print("After 40 million pairs, the judge's final count is \(generators.final_count()).")
+print("After 40 million pairs, the judge's final count is \(generators.final_count()),")
+print("and using the new generator logic the judge's final count is \(generators.picky_final_count()) after 5 million pairs.")
