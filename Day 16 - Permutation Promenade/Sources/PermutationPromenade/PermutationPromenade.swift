@@ -42,6 +42,7 @@ public class PermutationPromenade: CustomStringConvertible, Hashable {
     }
   }
 
+  // The programs forming this group.
   let programs: [Program]
 
   // Create a new group given the program count.
@@ -65,7 +66,7 @@ public class PermutationPromenade: CustomStringConvertible, Hashable {
     return programs.count
   }
 
-  // Display the programs in their ascending position order.
+  // Display the programs in ordered.
   public var description: String {
     return String(programs)
   }
@@ -77,21 +78,6 @@ public class PermutationPromenade: CustomStringConvertible, Hashable {
 
   // Represent a serie of move to be performed a number of times.
   public class Tune {
-    let moves: [Move]
-    let times: Int
-
-    // Create a tune from a string description of moves.
-    public convenience init(_ song: String) {
-      let moves = song.split(separator: ",").map { Move.parse(String($0))! }
-      self.init(moves: moves)
-    }
-
-    // Create a tune given its serie of moves and the repetition count.
-    init(moves: [Move], times: Int = 1) {
-      self.moves = moves
-      self.times = times
-    }
-
     // Returns a new tune that is the given one repeated n times.
     public static func ♯ (to_repeat: Tune, n: Int) -> Tune {
       return Tune(moves: to_repeat.moves, times: n * to_repeat.times)
@@ -103,13 +89,10 @@ public class PermutationPromenade: CustomStringConvertible, Hashable {
       var dancers = dancers
       var memoized: [PermutationPromenade: Int] = [:]
       for time in 0..<tune.times {
-        for move in tune.moves {
-          dancers = dancers ♪ move
-        }
+        dancers = tune.moves.reduce(dancers, ♪)
         // NOTE: shortcut the dance if we can. If we've already seen this
         // position from a previous iteration we've detected a loop. We can
-        // then avoid to loop and only dance the remaining time to reach the
-        // final position.
+        // then compute and return the final position.
         if let seen = memoized[dancers] {
           let size = time - seen // the loop size
           let left = tune.times - time - 1 // # of iteration left to do
@@ -122,6 +105,21 @@ public class PermutationPromenade: CustomStringConvertible, Hashable {
       // here we've made the dancer do the moves the total requested number of
       // times.
       return dancers
+    }
+
+    let moves: [Move] // the moves in this tune
+    let times: Int    // the number of time moves are repeated
+
+    // Create a tune from a string description of moves.
+    public convenience init(_ song: String) {
+      let moves = song.split(separator: ",").map { Move.parse(String($0))! }
+      self.init(moves: moves)
+    }
+
+    // Create a tune given its serie of moves and the repetition count.
+    init(moves: [Move], times: Int = 1) {
+      self.moves = moves
+      self.times = times
     }
   }
 
