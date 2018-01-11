@@ -7,8 +7,13 @@ infix operator ♫ : AdditionPrecedence // dance a full tune
 infix operator ♯ : MultiplicationPrecedence // dance a tune many times
 
 // Our group of dancing programs.
-public class PermutationPromenade: CustomStringConvertible {
+public class PermutationPromenade: CustomStringConvertible, Hashable {
   typealias Program = Character
+
+  // Compare two given program groups for equality.
+  public static func ==(lhs: PermutationPromenade, rhs: PermutationPromenade) -> Bool {
+    return "\(lhs)" == "\(rhs)"
+  }
 
   // Make the group dance a song (moves separated by comma).
   @discardableResult
@@ -20,20 +25,23 @@ public class PermutationPromenade: CustomStringConvertible {
   static func ♪ (dancers: PermutationPromenade, move: Move) -> PermutationPromenade {
     switch move {
       case .spin(let size):
-        // NOTE: a Spin moves programs *from the end to the front*, hence the
-        // substraction (offset moves "backward").
-        let offset = (dancers.offset - size) ÷ dancers.count
-        return PermutationPromenade(programs: dancers.programs, offset: offset)
-      case .exchange(let p, let q):
-        let (i, j) = (dancers.index(p), dancers.index(q))
-        return PermutationPromenade(programs: dancers.swaped(i, j), offset: dancers.offset)
+        let cut = (dancers.count - size) ÷ dancers.count
+        var (head, tail) = (dancers.programs[..<cut], dancers.programs[cut...])
+        tail.append(contentsOf: head)
+        return PermutationPromenade(Array(tail))
+      case .exchange(let i, let j):
+        var programs = dancers.programs
+        programs.swapAt(i, j)
+        return PermutationPromenade(programs)
       case .partner(let a, let b):
-        let (i, j) = (dancers.index(a), dancers.index(b))
-        return PermutationPromenade(programs: dancers.swaped(i, j), offset: dancers.offset)
+        let i = dancers.programs.index(of: a)!
+        let j = dancers.programs.index(of: b)!
+        var programs = dancers.programs
+        programs.swapAt(i, j)
+        return PermutationPromenade(programs)
     }
   }
 
-  let offset: Int // used to translate Position from/to index
   let programs: [Program]
 
   // Create a new group given the program count.
@@ -44,13 +52,12 @@ public class PermutationPromenade: CustomStringConvertible {
       let program = Program(UnicodeScalar(a + i)!)
       programs.append(program)
     }
-    self.init(programs: programs)
+    self.init(programs)
   }
 
-  // Create a new group given the program count.
-  init(programs: [Program], offset: Int = 0) {
+  // Create a new group given its programs.
+  init(_ programs: [Program]) {
     self.programs = programs
-    self.offset   = offset
   }
 
   // Program count in the group.
@@ -58,36 +65,14 @@ public class PermutationPromenade: CustomStringConvertible {
     return programs.count
   }
 
-  // Returns a program's position given its index.
-  func index(_ position: Position) -> Int {
-    return (position.at + offset) ÷ count
-  }
-
-  // Returns a program's index given its position.
-  func position(_ i: Int) -> Position {
-    return Position(at: (i - offset) ÷ count)
-  }
-
-  // Returns the index of the given program.
-  func index(_ program: Program) -> Int {
-    return programs.index(of: program)!
-  }
-
-  // Returns the position of the given program.
-  func position(_ program: Program) -> Position {
-    return position(index(program))
-  }
-
-  // Swap the programs at indices i and j.
-  func swaped(_ i: Int, _ j: Int) -> [Program] {
-    var programs = self.programs
-    (programs[i], programs[j]) = (programs[j], programs[i])
-    return programs
-  }
-
   // Display the programs in their ascending position order.
   public var description: String {
-    return String(programs.sorted(by: { position($0).at < position($1).at }))
+    return String(programs)
+  }
+
+  // Conform to Hashable.
+  public var hashValue: Int {
+    return description.hashValue
   }
 
   // Represent a serie of move to be performed a number of times.
@@ -116,7 +101,7 @@ public class PermutationPromenade: CustomStringConvertible {
     @discardableResult
     public static func ♫ (dancers: PermutationPromenade, tune: Tune) -> PermutationPromenade {
       var dancers = dancers
-      var memoized: [String: Int] = [:]
+      var memoized: [PermutationPromenade: Int] = [:]
       for time in 0..<tune.times {
         for move in tune.moves {
           dancers = dancers ♪ move
@@ -125,26 +110,20 @@ public class PermutationPromenade: CustomStringConvertible {
         // position from a previous iteration we've detected a loop. We can
         // then avoid to loop and only dance the remaining time to reach the
         // final position.
-        let position = "\(dancers)"
-        if let seen = memoized[position] {
+        if let seen = memoized[dancers] {
           let size = time - seen // the loop size
           let left = tune.times - time - 1 // # of iteration left to do
           let reminder = left ÷ size // # of iteration left to do after the loop
-          // Make the dancer perform the moves only reminder times.
-          return dancers ♫ Tune(moves: tune.moves) ♯ reminder
+          // Returns the group that has the reminder index in the loop.
+          return memoized.first(where: { $0.value == reminder })!.key
         }
-        memoized[position] = time
+        memoized[dancers] = time
       }
       // here we've made the dancer do the moves the total requested number of
       // times.
       return dancers
     }
   }
-
-  // Newtype Int to represent a program's position. This way the typechecker
-  // compel us to translate a position into an index before accessing a
-  // program.
-  struct Position { let at: Int }
 
   // Represent a dance move.
   enum Move {
@@ -154,7 +133,7 @@ public class PermutationPromenade: CustomStringConvertible {
       partner:  Regex("p([a-z])/([a-z])"))
 
     case spin(Int)
-    case exchange(Position, Position)
+    case exchange(Int, Int)
     case partner(Program, Program)
 
     // Parse a move string.
@@ -164,8 +143,8 @@ public class PermutationPromenade: CustomStringConvertible {
         return .spin(size)
       }
       if let match = Move.RE.exchange.firstMatch(in: s) {
-        let p = Position(at: Int(match.captures[0]!)!)
-        let q = Position(at: Int(match.captures[1]!)!)
+        let p = Int(match.captures[0]!)!
+        let q = Int(match.captures[1]!)!
         return .exchange(p, q)
       }
       if let match = Move.RE.partner.firstMatch(in: s) {
