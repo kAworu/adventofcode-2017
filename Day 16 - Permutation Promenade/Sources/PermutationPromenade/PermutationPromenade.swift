@@ -7,10 +7,6 @@ infix operator ♫ : AdditionPrecedence // dance a full tune
 infix operator ♯ : MultiplicationPrecedence // dance a tune many times
 
 // Our group of dancing programs.
-// NOTE: We use a double dictionary as internal representation so that both
-// Exchange and Partner moves can be performed in O(1). Additionally we keep
-// track of an offset instead of updating all program positions so that
-// performing a Spin is also O(1).
 public class PermutationPromenade: CustomStringConvertible {
   typealias Program = Character
 
@@ -21,45 +17,45 @@ public class PermutationPromenade: CustomStringConvertible {
   }
 
   // Make the group dance a single move.
-  static func ♪ (dancers: PermutationPromenade, move: Move) {
+  static func ♪ (dancers: PermutationPromenade, move: Move) -> PermutationPromenade {
     switch move {
       case .spin(let size):
         // NOTE: a Spin moves programs *from the end to the front*, hence the
         // substraction (offset moves "backward").
-        dancers.offset = (dancers.offset - size) ÷ dancers.count
+        let offset = (dancers.offset - size) ÷ dancers.count
+        return PermutationPromenade(programs: dancers.programs, offset: offset)
       case .exchange(let p, let q):
         let (i, j) = (dancers.index(p), dancers.index(q))
-        dancers.swap(i, j)
+        return PermutationPromenade(programs: dancers.swaped(i, j), offset: dancers.offset)
       case .partner(let a, let b):
         let (i, j) = (dancers.index(a), dancers.index(b))
-        dancers.swap(i, j)
+        return PermutationPromenade(programs: dancers.swaped(i, j), offset: dancers.offset)
     }
   }
 
-  var offset: Int = 0 // used to translate Position from/to index
-  var programs: [Int: Program] = [:] // index to program name
-  var indices: [Program: Int] = [:] // program name to index
+  let offset: Int // used to translate Position from/to index
+  let programs: [Program]
 
   // Create a new group given the program count.
-  public init(count n: Int) {
+  public convenience init(count n: Int) {
+    var programs: [Program] = []
     let a = Int("a".utf8.first!) // 97
     for i in 0..<n {
       let program = Program(UnicodeScalar(a + i)!)
-      programs[i] = program
-      indices[program] = i
+      programs.append(program)
     }
+    self.init(programs: programs)
+  }
+
+  // Create a new group given the program count.
+  init(programs: [Program], offset: Int = 0) {
+    self.programs = programs
+    self.offset   = offset
   }
 
   // Program count in the group.
   var count: Int {
     return programs.count
-  }
-
-  // Swap the programs at indices i and j.
-  func swap(_ i: Int, _ j: Int) {
-    let (a, b) = (programs[i]!, programs[j]!)
-    (programs[i], programs[j]) = (b, a)
-    (indices[a],  indices[b])  = (j, i)
   }
 
   // Returns a program's position given its index.
@@ -74,7 +70,7 @@ public class PermutationPromenade: CustomStringConvertible {
 
   // Returns the index of the given program.
   func index(_ program: Program) -> Int {
-    return indices[program]!
+    return programs.index(of: program)!
   }
 
   // Returns the position of the given program.
@@ -82,10 +78,16 @@ public class PermutationPromenade: CustomStringConvertible {
     return position(index(program))
   }
 
+  // Swap the programs at indices i and j.
+  func swaped(_ i: Int, _ j: Int) -> [Program] {
+    var programs = self.programs
+    (programs[i], programs[j]) = (programs[j], programs[i])
+    return programs
+  }
+
   // Display the programs in their ascending position order.
   public var description: String {
-    let chars = programs.map { $0.value }
-    return String(chars.sorted(by: { position($0).at < position($1).at }))
+    return String(programs.sorted(by: { position($0).at < position($1).at }))
   }
 
   // Represent a serie of move to be performed a number of times.
@@ -113,10 +115,11 @@ public class PermutationPromenade: CustomStringConvertible {
     // Make the given group dance to the provided tune.
     @discardableResult
     public static func ♫ (dancers: PermutationPromenade, tune: Tune) -> PermutationPromenade {
+      var dancers = dancers
       var memoized: [String: Int] = [:]
       for time in 0..<tune.times {
         for move in tune.moves {
-          dancers ♪ move
+          dancers = dancers ♪ move
         }
         // NOTE: shortcut the dance if we can. If we've already seen this
         // position from a previous iteration we've detected a loop. We can

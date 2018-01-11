@@ -6,21 +6,16 @@ class PermutationPromenadeTests: XCTestCase {
   func testPartOne() {
     let dancers = PermutationPromenade(count: 5)
     XCTAssertEqual("\(dancers)", "abcde")
-    dancers ♫ "s1"
-    XCTAssertEqual("\(dancers)", "eabcd")
-    dancers ♫ "x3/4"
-    XCTAssertEqual("\(dancers)", "eabdc")
-    dancers ♫ "pe/b"
-    XCTAssertEqual("\(dancers)", "baedc")
+    XCTAssertEqual("\(dancers ♫ "s1")", "eabcd")
+    XCTAssertEqual("\(dancers ♫ "s1,x3/4")", "eabdc")
+    XCTAssertEqual("\(dancers ♫ "s1,x3/4,pe/b")", "baedc")
   }
 
   func testPartTwo() {
     let dancers = PermutationPromenade(count: 5)
-    dancers ♫ "s1,x3/4,pe/b" ♯ 2
-    XCTAssertEqual("\(dancers)", "ceadb")
+    XCTAssertEqual("\(dancers ♫ "s1,x3/4,pe/b" ♯ 2)", "ceadb")
     // NOTE: for this count/dance combination their is a cycle of size=4.
-    dancers ♫ "s1,x3/4,pe/b" ♯ (1_000_000_000 - 2)
-    XCTAssertEqual("\(dancers)", "abcde")
+    XCTAssertEqual("\(dancers ♫ "s1,x3/4,pe/b" ♯ 1_000_000_000)", "abcde")
   }
 }
 
