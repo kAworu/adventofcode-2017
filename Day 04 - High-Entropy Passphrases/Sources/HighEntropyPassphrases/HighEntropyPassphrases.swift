@@ -16,7 +16,7 @@ public class HighEntropyPassphrases {
   // Returns false if this passphrase contains no two words that are anagrams
   // of each other, true otherwise.
   public var has_anagram: Bool {
-    return has_duplicate { CountedChars($0).description }
+    return has_duplicate { "\(CountedChars($0))" }
   }
 
   // Returns true if all words in our passphrase have a different image through
@@ -36,9 +36,10 @@ public class HighEntropyPassphrases {
 
   // Helper class for part 2, anagrams will have the same CountedChars string
   // description.
-  class CountedChars {
+  class CountedChars: CustomStringConvertible {
     let counts: [Character: Int]
 
+    // Create a character counter from a given word.
     init(_ word: String) {
         var counts: [Character: Int] = [:]
         for c in word {
@@ -46,15 +47,13 @@ public class HighEntropyPassphrases {
         }
         self.counts = counts
     }
-  }
-}
 
-extension HighEntropyPassphrases.CountedChars: CustomStringConvertible {
-  // build a description string with each character prefixed by its count,
-  // sorted in alphabetical order.
-  var description: String {
-    return Array(counts.keys).sorted().map { c in
-      "\(counts[c]!)\(c)"
-    }.joined()
+    // build a description string with each character prefixed by its count,
+    // sorted in alphabetical order.
+    var description: String {
+      return Array(counts.keys).sorted().map { c in
+        "\(counts[c]!)\(c)"
+      }.joined()
+    }
   }
 }

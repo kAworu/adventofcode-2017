@@ -16,7 +16,7 @@ public class MemoryReallocation {
     // banks state description to cycle number dictionary
     var seen: [String: Int] = [:]
     var banks = self.banks
-    var desc  = banks.description
+    var desc  = "\(banks)"
     var cycle = 0
     while seen[desc] == nil {
       seen[desc] = cycle
@@ -27,46 +27,42 @@ public class MemoryReallocation {
       for i in start...stop {
         banks[i % banks.count].blocks += 1
       }
-      desc = banks.description
+      desc = "\(banks)"
       cycle += 1
     }
     return (before_looping: cycle, loop: cycle - seen[desc]!)
   }
 
   // Represents a memory bank.
-  class Bank {
+  class Bank: Comparable, CustomStringConvertible {
+    // Returns true if lhs is lesser than rhs, false otherwise.
+    static func <(lhs: Bank, rhs: Bank) -> Bool {
+      if lhs.blocks == rhs.blocks {
+        // NOTE: tie won by the lowest-numbered memory bank
+        return lhs.id > rhs.id
+      } else {
+        return lhs.blocks < rhs.blocks
+      }
+    }
+
+    // Returns true if lhs and rhs are equals, false otherwise.
+    static func ==(lhs: Bank, rhs: Bank) -> Bool {
+      return lhs.id == rhs.id && lhs.blocks == rhs.blocks
+    }
+
     let id: Int
     var blocks: Int
 
+    // Create a bank given its id and block count.
     init(id: Int, blocks: Int) {
       self.id = id
       self.blocks = blocks
     }
-  }
-}
 
-// Extend Comparable so that we may use [Bank].max()
-extension MemoryReallocation.Bank: Comparable {
-  // Returns true if lhs is lesser than rhs, false otherwise.
-  static func <(lhs: MemoryReallocation.Bank, rhs: MemoryReallocation.Bank) -> Bool {
-    if lhs.blocks == rhs.blocks {
-      // NOTE: tie won by the lowest-numbered memory bank
-      return lhs.id > rhs.id
-    } else {
-      return lhs.blocks < rhs.blocks
+    // Returns a String representation of this bank. Used to compare [Bank]
+    // state.
+    var description: String {
+      return "\(self.id):\(self.blocks)"
     }
-  }
-
-  // Returns true if lhs and rhs are equals, false otherwise.
-  static func ==(lhs: MemoryReallocation.Bank, rhs: MemoryReallocation.Bank) -> Bool {
-    return lhs.id == rhs.id && lhs.blocks == rhs.blocks
-  }
-}
-
-// Bank serialization used to compare [Bank] state.
-extension MemoryReallocation.Bank: CustomStringConvertible {
-  // Returns a String representation of this bank.
-  var description: String {
-    return "\(self.id):\(self.blocks)"
   }
 }

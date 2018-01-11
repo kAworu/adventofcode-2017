@@ -92,19 +92,17 @@ public class KnotHash {
   }
 
   // Represent a finalized KnotHash result.
-  public class Result {
+  public class Result: CustomStringConvertible {
     public let bytes: [UInt8]
 
     // Create a result givens its bytes.
     init(_ bytes: [UInt8]) {
       self.bytes = bytes
     }
-  }
-}
 
-// Standard hexadecimal String representation of a KnotHash Result.
-extension KnotHash.Result: CustomStringConvertible {
-  public var description: String {
-    return bytes.map { String(format: "%02x", $0) }.joined()
+    // Standard hexadecimal String representation of a KnotHash Result.
+    public var description: String {
+      return bytes.map { String(format: "%02x", $0) }.joined()
+    }
   }
 }

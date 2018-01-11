@@ -49,7 +49,7 @@ public class RecursiveCircus {
   }
 
   // Represents a program from the tower.
-  public class Program {
+  public class Program: Hashable, CustomStringConvertible {
     static let LINE_REGEX = Regex("([a-z]+) \\(([0-9]+)\\)(.*)?")
     static let NAME_REGEX = Regex("[a-z]+")
 
@@ -58,6 +58,12 @@ public class RecursiveCircus {
       parent.children.insert(child)
       child.parent = parent
       return child
+    }
+
+    // Compare two given programs for equality.
+    // NOTE: assume that there are no two programs with the same name.
+    public static func ==(lhs: Program, rhs: Program) -> Bool {
+      return lhs.name == rhs.name
     }
 
     let name: String
@@ -107,41 +113,33 @@ public class RecursiveCircus {
       let delta   = max.key - min.key // keys are total_weight in our grouping
       throw InvalidWeightError(culprit: culprit, delta: delta)
     }
-  }
 
-  // see Program.total_weight()
-  public class InvalidWeightError: Error {
-    public let culprit: Program
-    let delta: Int
-
-    init(culprit: Program, delta: Int) {
-      self.culprit = culprit
-      self.delta   = delta
+    // Conform to Hashable.
+    public var hashValue: Int {
+      return name.hashValue
     }
 
-    // Returns the corrected weight of our culprit.
-    public var corrected_weight: Int {
-      return culprit.weight + delta
+    // Conform to CustomStringConvertible.
+    public var description: String {
+      return name
     }
-  }
-}
 
-// "delegate" hashValue, == and String conversion to the Program's name and
-// expose them.
+    // see Program.total_weight()
+    public class InvalidWeightError: Error {
+      public let culprit: Program
+      let delta: Int
 
-extension RecursiveCircus.Program: Hashable {
-  public var hashValue: Int {
-    return name.hashValue
-  }
+      // Create a new Error describing a delta diff of the given
+      // culprit's weight.
+      init(culprit: Program, delta: Int) {
+        self.culprit = culprit
+        self.delta   = delta
+      }
 
-  // NOTE: assume that there are no two programs with the same name.
-  public static func ==(lhs: RecursiveCircus.Program, rhs: RecursiveCircus.Program) -> Bool {
-    return lhs.name == rhs.name
-  }
-}
-
-extension RecursiveCircus.Program: CustomStringConvertible {
-  public var description: String {
-    return name
+      // Returns the corrected weight of our culprit.
+      public var corrected_weight: Int {
+        return culprit.weight + delta
+      }
+    }
   }
 }

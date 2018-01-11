@@ -1,34 +1,5 @@
 import Regex
 
-// Set union operator, syntaxic sugar for Set.union(_:)
-// see https://en.wikibooks.org/wiki/Unicode/List_of_useful_symbols#Sets
-infix operator ∪ : AdditionPrecedence
-func ∪<T>(lhs: Set<T>, rhs: Set<T>) -> Set<T> {
-  return lhs.union(rhs)
-}
-
-// Compound assignment Set union operator, syntaxic sugar for Set.formUnion(_:)
-// see https://en.wikibooks.org/wiki/Unicode/List_of_useful_symbols#Sets
-infix operator ∪= : AssignmentPrecedence
-func ∪=<T>(lhs: inout Set<T>, rhs: Set<T>) {
-  lhs.formUnion(rhs)
-}
-
-// Set difference operator, syntaxic sugar for Set.subtracted(_:)
-// see https://en.wikibooks.org/wiki/Unicode/List_of_useful_symbols#Sets
-// and https://en.wikipedia.org/wiki/Complement_(set_theory)
-infix operator ∖ : AdditionPrecedence
-func ∖<T>(lhs: Set<T>, rhs: Set<T>) -> Set<T> {
-  return lhs.subtracting(rhs)
-}
-
-// Compound assignment Set union operator, syntaxic sugar for Set.formUnion(_:)
-// see https://en.wikibooks.org/wiki/Unicode/List_of_useful_symbols#Sets
-infix operator ∖= : AssignmentPrecedence
-func ∖=<T>(lhs: inout Set<T>, rhs: Set<T>) {
-  lhs.subtract(rhs)
-}
-
 // Program pipe relationship operator (left right arrow).
 infix operator ↔ : ComparisonPrecedence
 
@@ -88,7 +59,7 @@ public class PipeNetwork {
   }
 
   // Represents a program from the pipe network.
-  public class Program {
+  public class Program: Hashable {
     // parsing stuff.
     static let LINE_REGEX = Regex("([0-9]+) <-> (.+)")
     static let ID_REGEX   = Regex("[0-9]+")
@@ -97,6 +68,12 @@ public class PipeNetwork {
     static func ↔ (lhs: Program, rhs: Program) {
       lhs.neighbours.insert(rhs)
       rhs.neighbours.insert(lhs)
+    }
+
+    // Compare two given programs for equality.
+    // NOTE: assume that no two programs have the same id.
+    public static func ==(lhs: Program, rhs: Program) -> Bool {
+      return lhs.id == rhs.id
     }
 
     let id: Id
@@ -120,17 +97,42 @@ public class PipeNetwork {
       }
       return visited
     }
+
+    // Conform to Hashable.
+    public var hashValue: Int {
+      return id.hashValue
+    }
   }
 }
 
-// "delegate" hashValue and == to the program's ID
+// Set union operator, syntaxic sugar for Set.union(_:)
+// see https://en.wikibooks.org/wiki/Unicode/List_of_useful_symbols#Sets
+infix operator ∪ : AdditionPrecedence
+// Compound assignment Set union operator, syntaxic sugar for Set.formUnion(_:)
+// see https://en.wikibooks.org/wiki/Unicode/List_of_useful_symbols#Sets
+infix operator ∪= : AssignmentPrecedence
+// Set difference operator, syntaxic sugar for Set.subtracted(_:)
+// see https://en.wikibooks.org/wiki/Unicode/List_of_useful_symbols#Sets
+// and https://en.wikipedia.org/wiki/Complement_(set_theory)
+infix operator ∖ : AdditionPrecedence
+// Compound assignment Set union operator, syntaxic sugar for Set.formUnion(_:)
+// see https://en.wikibooks.org/wiki/Unicode/List_of_useful_symbols#Sets
+infix operator ∖= : AssignmentPrecedence
 
-extension PipeNetwork.Program: Hashable {
-  public var hashValue: Int {
-    return id.hashValue
+extension Set {
+  static func ∪(lhs: Set, rhs: Set) -> Set {
+    return lhs.union(rhs)
   }
 
-  public static func ==(lhs: PipeNetwork.Program, rhs: PipeNetwork.Program) -> Bool {
-    return lhs.id == rhs.id
+  static func ∪=(lhs: inout Set, rhs: Set) {
+    lhs.formUnion(rhs)
+  }
+
+  static func ∖(lhs: Set, rhs: Set) -> Set {
+    return lhs.subtracting(rhs)
+  }
+
+  static func ∖=(lhs: inout Set, rhs: Set) {
+    lhs.subtract(rhs)
   }
 }

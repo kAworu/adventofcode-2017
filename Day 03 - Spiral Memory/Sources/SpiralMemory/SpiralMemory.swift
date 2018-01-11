@@ -91,11 +91,15 @@ public struct SpiralMemory {
   }
 
   // hacked from https://developer.apple.com/documentation/swift/hashable
-  struct Point {
-    let x: Int
-    let y: Int
+  struct Point: Hashable {
+    // Compare two given points for equality.
+    static func ==(lhs: Point, rhs: Point) -> Bool {
+      return lhs.x == rhs.x && lhs.y == rhs.y
+    }
 
-    // give access to neighbour points
+    let x, y: Int
+
+    // Access the neighbour point in the given direction.
     subscript(_ direction: Direction) -> Point {
         switch direction {
           case .east:  return Point(x: x + 1, y: y)
@@ -103,17 +107,11 @@ public struct SpiralMemory {
           case .west:  return Point(x: x - 1, y: y)
           case .south: return Point(x: x, y: y - 1)
         }
-        // NOTREACHED
     }
-  }
-}
 
-extension SpiralMemory.Point: Hashable {
-  var hashValue: Int {
-    return x.hashValue ^ y.hashValue &* 16777619
-  }
-
-  static func ==(lhs: SpiralMemory.Point, rhs: SpiralMemory.Point) -> Bool {
-    return lhs.x == rhs.x && lhs.y == rhs.y
+    // Conform to Hashable.
+    var hashValue: Int {
+      return x.hashValue ^ y.hashValue &* 16777619
+    }
   }
 }

@@ -1,3 +1,12 @@
+import KnotHash
+
+extension KnotHash.Result {
+  // Hamming weight over the KnotHash.Result bytes.
+  var popcnt: Int {
+    return bytes.reduce(0) { $0 + $1.nonzeroBitCount }
+  }
+}
+
 // The disk's grid.
 public class DiskDefragmentation {
   public static let HEIGHT = 128 // default grid's height
@@ -97,11 +106,15 @@ public class DiskDefragmentation {
   }
 
   // hacked from https://developer.apple.com/documentation/swift/hashable
-  struct Point {
-    let x: Int
-    let y: Int
+  struct Point: Hashable {
+    // Compare two given points for equality.
+    static func ==(lhs: Point, rhs: Point) -> Bool {
+      return lhs.x == rhs.x && lhs.y == rhs.y
+    }
 
-    // give access to neighbour points
+    let x, y: Int
+
+    // Access the neighbour point in the given direction.
     subscript(_ direction: Direction) -> Point {
         switch direction {
           case .east:  return Point(x: x + 1, y: y)
@@ -109,32 +122,18 @@ public class DiskDefragmentation {
           case .west:  return Point(x: x - 1, y: y)
           case .south: return Point(x: x, y: y - 1)
         }
-        // NOTREACHED
     }
 
-    // Returns the neighbours points of this one.
+    // Neighbours points from this one.
     var neighbours: Set<Point> {
       return [
         self[.east], self[.north], self[.west], self[.south]
       ]
     }
-  }
-}
 
-extension DiskDefragmentation.Point: Hashable {
-  var hashValue: Int {
-    return x.hashValue ^ y.hashValue &* 16777619
-  }
-
-  static func ==(lhs: DiskDefragmentation.Point, rhs: DiskDefragmentation.Point) -> Bool {
-    return lhs.x == rhs.x && lhs.y == rhs.y
-  }
-}
-
-import KnotHash
-extension KnotHash.Result {
-  // Hamming weight over the KnotHash.Result bytes.
-  var popcnt: Int {
-    return bytes.reduce(0) { $0 + $1.nonzeroBitCount }
+    // Conform to Hashable.
+    var hashValue: Int {
+      return x.hashValue ^ y.hashValue &* 16777619
+    }
   }
 }

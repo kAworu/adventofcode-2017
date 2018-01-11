@@ -28,7 +28,7 @@ class RecursiveCircusTests: XCTestCase {
     do {
       let _ = try tower.bottom_program!.total_weight()
       XCTFail("Expected an Error to be thrown.")
-    } catch let err as RecursiveCircus.InvalidWeightError {
+    } catch let err as RecursiveCircus.Program.InvalidWeightError {
       XCTAssertEqual(err.culprit.name, "ugml")
       XCTAssertEqual(err.corrected_weight, 60)
     } catch {
