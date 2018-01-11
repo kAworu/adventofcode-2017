@@ -1,59 +1,58 @@
 import Regex
 
-// Modulo operator based on swift's reminder (%) operator.
-infix operator ÷ : MultiplicationPrecedence
-func ÷ (x: Int, m: Int) -> Int {
-  let r = x % m
-  return (r < 0 ? r + m : r)
-}
+// Dancing operators.
+// see https://en.wikibooks.org/wiki/Unicode/List_of_useful_symbols#Sets
+infix operator ♪ : AdditionPrecedence // dance one move
+infix operator ♫ : AdditionPrecedence // dance a full tune
+infix operator ♯ : MultiplicationPrecedence // dance a tune many times
 
 // Our group of dancing programs.
 // NOTE: We use a double dictionary as internal representation so that both
 // Exchange and Partner moves can be performed in O(1). Additionally we keep
 // track of an offset instead of updating all program positions so that
 // performing a Spin is also O(1).
-public class PermutationPromenade {
+public class PermutationPromenade: CustomStringConvertible {
   typealias Program = Character
 
-  // Newtype Int to represent a program's position. This way the typechecker
-  // compel us to translate a position into an index before accessing a
-  // program.
-  struct Position { let at: Int }
+  // Make the group dance a song (moves separated by comma).
+  @discardableResult
+  public static func ♫ (dancers: PermutationPromenade, song: String) -> PermutationPromenade {
+    return dancers ♫ Tune(song)
+  }
+
+  // Make the group dance a single move.
+  static func ♪ (dancers: PermutationPromenade, move: Move) {
+    switch move {
+      case .spin(let size):
+        // NOTE: a Spin moves programs *from the end to the front*, hence the
+        // substraction (offset moves "backward").
+        dancers.offset = (dancers.offset - size) ÷ dancers.count
+      case .exchange(let p, let q):
+        let (i, j) = (dancers.index(p), dancers.index(q))
+        dancers.swap(i, j)
+      case .partner(let a, let b):
+        let (i, j) = (dancers.index(a), dancers.index(b))
+        dancers.swap(i, j)
+    }
+  }
 
   var offset: Int = 0 // used to translate Position from/to index
   var programs: [Int: Program] = [:] // index to program name
   var indices: [Program: Int] = [:] // program name to index
 
   // Create a new group given the program count.
-  public init(count: Int) {
+  public init(count n: Int) {
     let a = Int("a".utf8.first!) // 97
-    for i in 0..<count {
+    for i in 0..<n {
       let program = Program(UnicodeScalar(a + i)!)
       programs[i] = program
       indices[program] = i
     }
   }
 
-  // Make the group dance a tune (moves separated by comma).
-  public func dance(tune: String) {
-    let moves = tune.split(separator: ",").map { Move.parse(String($0))! }
-    for move in moves {
-      dance(move)
-    }
-  }
-
-  // Make the group dance a single move.
-  func dance(_ move: Move) {
-    switch move {
-      case .spin(let size):
-        // NOTE: a Spin moves programs *from the end to the front*, hence the
-        // substraction (offset moves "backward").
-        offset = (offset - size) ÷ programs.count
-      case .exchange(let p, let q):
-        swap(index(p), index(q))
-      case .partner(let a, let b):
-        swap(index(a), index(b))
-    }
+  // Program count in the group.
+  var count: Int {
+    return programs.count
   }
 
   // Swap the programs at indices i and j.
@@ -65,13 +64,12 @@ public class PermutationPromenade {
 
   // Returns a program's position given its index.
   func index(_ position: Position) -> Int {
-    return (position.at + offset) ÷ programs.count
+    return (position.at + offset) ÷ count
   }
 
   // Returns a program's index given its position.
   func position(_ i: Int) -> Position {
-    let n = programs.count
-    return Position(at: (i - offset) ÷ n)
+    return Position(at: (i - offset) ÷ count)
   }
 
   // Returns the index of the given program.
@@ -83,6 +81,67 @@ public class PermutationPromenade {
   func position(_ program: Program) -> Position {
     return position(index(program))
   }
+
+  // Display the programs in their ascending position order.
+  public var description: String {
+    let chars = programs.map { $0.value }
+    return String(chars.sorted(by: { position($0).at < position($1).at }))
+  }
+
+  // Represent a serie of move to be performed a number of times.
+  public class Tune {
+    let moves: [Move]
+    let times: Int
+
+    // Create a tune from a string description of moves.
+    public convenience init(_ song: String) {
+      let moves = song.split(separator: ",").map { Move.parse(String($0))! }
+      self.init(moves: moves)
+    }
+
+    // Create a tune given its serie of moves and the repetition count.
+    init(moves: [Move], times: Int = 1) {
+      self.moves = moves
+      self.times = times
+    }
+
+    // Returns a new tune that is the given one repeated n times.
+    public static func ♯ (to_repeat: Tune, n: Int) -> Tune {
+      return Tune(moves: to_repeat.moves, times: n * to_repeat.times)
+    }
+
+    // Make the given group dance to the provided tune.
+    @discardableResult
+    public static func ♫ (dancers: PermutationPromenade, tune: Tune) -> PermutationPromenade {
+      var memoized: [String: Int] = [:]
+      for time in 0..<tune.times {
+        for move in tune.moves {
+          dancers ♪ move
+        }
+        // NOTE: shortcut the dance if we can. If we've already seen this
+        // position from a previous iteration we've detected a loop. We can
+        // then avoid to loop and only dance the remaining time to reach the
+        // final position.
+        let position = "\(dancers)"
+        if let seen = memoized[position] {
+          let size = time - seen // the loop size
+          let left = tune.times - time - 1 // # of iteration left to do
+          let reminder = left ÷ size // # of iteration left to do after the loop
+          // Make the dancer perform the moves only reminder times.
+          return dancers ♫ Tune(moves: tune.moves) ♯ reminder
+        }
+        memoized[position] = time
+      }
+      // here we've made the dancer do the moves the total requested number of
+      // times.
+      return dancers
+    }
+  }
+
+  // Newtype Int to represent a program's position. This way the typechecker
+  // compel us to translate a position into an index before accessing a
+  // program.
+  struct Position { let at: Int }
 
   // Represent a dance move.
   enum Move {
@@ -116,20 +175,23 @@ public class PermutationPromenade {
   }
 }
 
-// Display the programs in their ascending position order.
-extension PermutationPromenade: CustomStringConvertible {
-  public var description: String {
-    let chars = programs.map { $0.value }
-    return String(chars.sorted(by: { position($0) < position($1) }))
-  }
+// Syntaxic sugar for (Tune ♯ Int)
+public func ♯ (song: String, n: Int) -> PermutationPromenade.Tune {
+  return PermutationPromenade.Tune(song) ♯ n
 }
 
-// "delegate" position comparison to their underlying Int.
-extension PermutationPromenade.Position: Comparable {
-  static func < (lhs: PermutationPromenade.Position, rhs: PermutationPromenade.Position) -> Bool {
-    return lhs.at < rhs.at
-  }
-  static func == (lhs: PermutationPromenade.Position, rhs: PermutationPromenade.Position) -> Bool {
-    return lhs.at == rhs.at
+// Modulo operators based on swift's reminder (%) operator.
+infix operator ÷  : MultiplicationPrecedence
+infix operator ÷= : AssignmentPrecedence
+
+func ÷<T: BinaryInteger>(x: T, m: T) -> T {
+  let r = x % m
+  return (r < 0 ? r + m : r)
+}
+
+func ÷=<T: BinaryInteger>(x: inout T, m: T) {
+  x %= m
+  if x < 0 {
+    x += m
   }
 }

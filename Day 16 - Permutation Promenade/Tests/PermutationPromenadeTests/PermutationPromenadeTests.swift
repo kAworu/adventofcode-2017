@@ -4,18 +4,23 @@ import XCTest
 class PermutationPromenadeTests: XCTestCase {
 
   func testPartOne() {
-    let programs = PermutationPromenade(count: 5)
-    XCTAssertEqual(programs.description, "abcde")
-    programs.dance(tune: "s1")
-    XCTAssertEqual(programs.description, "eabcd")
-    programs.dance(tune: "x3/4")
-    XCTAssertEqual(programs.description, "eabdc")
-    programs.dance(tune: "pe/b")
-    XCTAssertEqual(programs.description, "baedc")
+    let dancers = PermutationPromenade(count: 5)
+    XCTAssertEqual("\(dancers)", "abcde")
+    dancers ♫ "s1"
+    XCTAssertEqual("\(dancers)", "eabcd")
+    dancers ♫ "x3/4"
+    XCTAssertEqual("\(dancers)", "eabdc")
+    dancers ♫ "pe/b"
+    XCTAssertEqual("\(dancers)", "baedc")
   }
 
   func testPartTwo() {
-    // TODO
+    let dancers = PermutationPromenade(count: 5)
+    dancers ♫ "s1,x3/4,pe/b" ♯ 2
+    XCTAssertEqual("\(dancers)", "ceadb")
+    // NOTE: for this count/dance combination their is a cycle of size=4.
+    dancers ♫ "s1,x3/4,pe/b" ♯ (1_000_000_000 - 2)
+    XCTAssertEqual("\(dancers)", "abcde")
   }
 }
 
