@@ -4,7 +4,7 @@ import XCTest
 class SpinlockTests: XCTestCase {
 
   func testPartOne() {
-    var lock = Spinlock(step: 3)
+    let lock = Spinlock(step: 3)
     XCTAssertEqual("\(lock)", "(0)")
     lock.spin()
     XCTAssertEqual("\(lock)", "0 (1)")
@@ -24,13 +24,31 @@ class SpinlockTests: XCTestCase {
     XCTAssertEqual("\(lock)", "0  5  7  2  4  3 (8) 6  1")
     lock.spin()
     XCTAssertEqual("\(lock)", "0 (9) 5  7  2  4  3  8  6  1")
-    lock = Spinlock(step: 3)
-    lock.spin(count: 2017)
-    XCTAssertEqual(lock[1], 638)
+    lock.spin(count: 2017 - 9)
+    XCTAssertEqual(lock.next_to(2017)!, 638)
   }
 
   func testPartTwo() {
-    // TODO
+    let lock = FakeSpinlock(step: 3)
+    XCTAssertEqual(lock.next_to_zero, nil)
+    lock.spin()
+    XCTAssertEqual(lock.next_to_zero, 1)
+    lock.spin()
+    XCTAssertEqual(lock.next_to_zero, 2)
+    lock.spin()
+    XCTAssertEqual(lock.next_to_zero, 2)
+    lock.spin()
+    XCTAssertEqual(lock.next_to_zero, 2)
+    lock.spin()
+    XCTAssertEqual(lock.next_to_zero, 5)
+    lock.spin()
+    XCTAssertEqual(lock.next_to_zero, 5)
+    lock.spin()
+    XCTAssertEqual(lock.next_to_zero, 5)
+    lock.spin()
+    XCTAssertEqual(lock.next_to_zero, 5)
+    lock.spin()
+    XCTAssertEqual(lock.next_to_zero, 9)
   }
 }
 
