@@ -2,21 +2,20 @@ import XCTest
 @testable import Duet
 
 class DuetTests: XCTestCase {
-  static let PUZZLE = """
-    set a 1
-    add a 2
-    mul a a
-    mod a 5
-    snd a
-    set a 0
-    rcv a
-    jgz a -1
-    set a 1
-    jgz a -2
-  """
 
   func testPartOne() {
-    let instructions = Duet.Assembly(DuetTests.PUZZLE)!
+    let instructions = Duet.Assembly("""
+      set a 1
+      add a 2
+      mul a a
+      mod a 5
+      snd a
+      set a 0
+      rcv a
+      jgz a -1
+      set a 1
+      jgz a -2
+    """)!
     var called = 0
     let processor = Duet.Processor(rcv: {
       called += 1

@@ -12,7 +12,7 @@ func get_puzzle() -> [String] {
 let puzzle       = get_puzzle()
 let instructions = Duet.Assembly(puzzle)!
 let processor    = Duet.Processor(rcv: {
-  print("the most recently played sound the first time a rcv instruction is executed is \($0!)")
+  print("The most recently played sound the first time a rcv instruction is executed is \($0!).")
   return false
 })
 processor.execute(instructions)
