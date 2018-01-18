@@ -44,7 +44,7 @@ public class LikableRegisters {
       var all_time_max: (key: String, value: Int)? = nil
       for instruction in instructions {
         instruction.execute(
-          fetch: { registers[$0] ?? default_value },
+          fetch: { registers[$0, default: default_value] },
           store: { reg, val in
             registers[reg] = val
             if all_time_max == nil || all_time_max!.value < val {
