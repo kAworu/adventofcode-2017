@@ -2,12 +2,15 @@ import Regex
 
 // Assembly code written on a tablet.
 public class Duet {
-  // A register name.
+  // Syntaxic sugar for register names.
   typealias Register = Character
 
   // The tablet's assembly code, a program holding a list of instructions.
   public class Assembly {
-    let instructions: [Instruction]
+    // The instruction set revision.
+    // - v1 uses .play and .recover for snd respectively rcv,
+    // - v2 uses .send and .receive for snd respectively rcv.
+    public enum Revision { case v1, v2 }
 
     // An instruction from the tablet.
     enum Instruction {
@@ -18,12 +21,12 @@ public class Duet {
 
         // Parse a given expression String. Returns nil on failure, an
         // Expression otherwise.
-        static func parse(_ expr: String) -> Expression? {
-          guard expr.count > 0 else { return nil }
-          if let number = Int(expr) {
+        static func parse(_ exp: String) -> Expression? {
+          guard exp.count > 0 else { return nil }
+          if let number = Int(exp) {
             return .literal(number)
           } else {
-            return .identifier(expr[expr.startIndex])
+            return .identifier(exp[exp.startIndex])
           }
         }
 
@@ -40,39 +43,52 @@ public class Duet {
       }
 
       // Parsing stuff.
-      static let SOUND_REGEX = Regex("(snd|rcv) ([a-z])")
-      static let MOD_REGEX   = Regex("(set|add|mul|mod) ([a-z]) ([a-z]|-?[0-9]+)")
-      static let CTRL_REGEX  = Regex("(jgz) ([a-z]|-?[0-9]+) ([a-z]|-?[0-9]+)")
+      static let SND_REGEX = Regex("snd ([a-z]|-?[0-9]+)")
+      static let RCV_REGEX = Regex("rcv ([a-z])")
+      static let REG_REGEX = Regex("(set|add|mul|mod) ([a-z]) ([a-z]|-?[0-9]+)")
+      static let JMP_REGEX = Regex("(jgz) ([a-z]|-?[0-9]+) ([a-z]|-?[0-9]+)")
 
-      case snd(source: Register)
-      case rcv(cond: Register)
-      case set(reg: Register, expr: Expression)
-      case add(reg: Register, expr: Expression)
-      case mul(reg: Register, expr: Expression)
-      case mod(reg: Register, expr: Expression)
+      // v1 & v2 instructions
+      case set(reg: Register, exp: Expression)
+      case add(reg: Register, exp: Expression)
+      case mul(reg: Register, exp: Expression)
+      case mod(reg: Register, exp: Expression)
       case jgz(cond: Expression, offset: Expression)
+      // v1 instructions
+      case play(src: Expression)
+      case recover(cond: Register)
+      // v2 instructions
+      case send(src: Expression)
+      case receive(dest: Register)
 
       // Parse a given instruction String. Returns nil on failure, a new
-      // Instruction otherwise.
-      static func parse(_ line: String) -> Instruction? {
-        if let match = Instruction.SOUND_REGEX.firstMatch(in: line) {
-          let reg = Register(match.captures[1]!)
-          switch match.captures[0]! {
-            case "snd": return .snd(source: reg)
-            case "rcv": return .rcv(cond: reg)
-            default: return nil
+      // Instruction otherwise. Different instructions are generated for both
+      // `snd` and `rcv` depending on the requested revision of the instruction
+      // set.
+      static func parse(_ line: String, revision: Revision) -> Instruction? {
+        if let match = Instruction.SND_REGEX.firstMatch(in: line) {
+          let src = Expression.parse(match.captures[0]!)!
+          switch (revision) {
+            case .v1: return .play(src: src)
+            case .v2: return .send(src: src)
           }
-        } else if let match = Instruction.MOD_REGEX.firstMatch(in: line) {
+        } else if let match = Instruction.RCV_REGEX.firstMatch(in: line) {
+          let reg = Register(match.captures[0]!)
+          switch (revision) {
+            case .v1: return .recover(cond: reg)
+            case .v2: return .receive(dest: reg)
+          }
+        } else if let match = Instruction.REG_REGEX.firstMatch(in: line) {
           let reg  = Register(match.captures[1]!)
-          let expr = Expression.parse(match.captures[2]!)!
+          let exp = Expression.parse(match.captures[2]!)!
           switch match.captures[0]! {
-            case "set": return .set(reg: reg, expr: expr)
-            case "add": return .add(reg: reg, expr: expr)
-            case "mul": return .mul(reg: reg, expr: expr)
-            case "mod": return .mod(reg: reg, expr: expr)
+            case "set": return .set(reg: reg, exp: exp)
+            case "add": return .add(reg: reg, exp: exp)
+            case "mul": return .mul(reg: reg, exp: exp)
+            case "mod": return .mod(reg: reg, exp: exp)
             default: return nil
           }
-        } else if let match = Instruction.CTRL_REGEX.firstMatch(in: line) {
+        } else if let match = Instruction.JMP_REGEX.firstMatch(in: line) {
           let cond   = Expression.parse(match.captures[1]!)!
           let offset = Expression.parse(match.captures[2]!)!
           switch match.captures[0]! {
@@ -83,50 +99,27 @@ public class Duet {
           return nil
         }
       }
-
-      // Execute this Instruction on the given processor.
-      func execute(on cpu: Processor) {
-        // syntaxic sugar to evaluate an Expression.
-        func eval(_ expression: Expression) -> Int {
-          return expression.eval(fetch: { cpu[$0] })
-        }
-        switch self {
-          case .snd(let source):
-            cpu.play(source: source)
-          case .set(let reg, let expr):
-            cpu[reg] = eval(expr)
-          case .add(let reg, let expr):
-            cpu[reg] = cpu[reg] + eval(expr)
-          case .mul(let reg, let expr):
-            cpu[reg] = cpu[reg] * eval(expr)
-          case .mod(let reg, let expr):
-            cpu[reg] = cpu[reg] % eval(expr)
-          case .rcv(let cond):
-            if cpu[cond] != 0 {
-              cpu.recover()
-            }
-          case .jgz(let cond, let offset):
-            if eval(cond) != 0 {
-              cpu.jump(offset: eval(offset))
-            }
-        }
-      }
     }
+
+    let instructions: [Instruction]
 
     // Parse a program, one instruction per line. Returns nil on parsing
     // failure.
-    public convenience init?(_ asm: String) {
+    public convenience init?(_ revision: Revision, _ asm: String) {
       let lines = asm.split(separator: "\n").map(String.init)
-      self.init(lines)
+      self.init(revision, lines)
     }
 
     // Parse a program, one instruction per element in the given lines. Returns
     // nil on failure to parse any of the line.
-    public convenience init?(_ lines: [String]) {
+    public convenience init?(_ revision: Revision, _ lines: [String]) {
       var instructions: [Instruction] = []
         for line in lines {
-          guard let instruction = Instruction.parse(line) else { return nil }
-          instructions.append(instruction)
+          if let instruction = Instruction.parse(line, revision: revision) {
+            instructions.append(instruction)
+          } else {
+            return nil
+          }
         }
       self.init(instructions)
     }
@@ -137,67 +130,192 @@ public class Duet {
     }
   }
 
-  // A Central Processor Unit able to evaluate the assembly code found on the
+  // A Central Processor Unit able to execute the assembly code found on the
   // tablet.
   public class Processor {
-    let rcv: (Int?) -> Bool              // callback when a sound is received.
-    let default_value: Int               // default register value.
-    var registers: [Register: Int] = [:] // the processor's registers.
-    var sound: Int? = nil                // last played sound.
-    var pc: Int = 0                      // program counter.
+    // A special register initially holding the processor's id.
+    static let ID_REGISTER: Register = "p"
 
-    // Create a new processor given its default value for its registers and a
-    // receive callback. The receive callback must return true if the program
-    // should continue the execution after the receive instruction, false
-    // otherwise.
-    public init(default_value: Int = 0, rcv: @escaping (Int?) -> Bool) {
-      self.default_value = default_value
-      self.rcv = rcv
+    // Type of event emmited by the CPU.
+    public enum Event { case recover, send }
+
+    // Function type used as event callback by the processor.
+    public typealias Callback = (Int?) -> Execution
+
+    // The CPU execution state.
+    public enum Execution { case proceed, wait, stop }
+
+    let id: Int                            // this processor's ID
+    let program: Assembly                  // the program to execute.
+    var registers: [Register: Int] = [:]   // the processor's registers.
+    let default_value: Int = 0             // default register value.
+    var state: Execution = .proceed        // execution flow state.
+    var pc: Int = 0                        // program counter.
+    var listeners: [Event: Callback] = [:] // registered callback per event.
+    var messages: [Int] = []               // FIFO message queue for this CPU.
+
+    // Create a new processor given its id. The Processor.ID_REGISTER will be
+    // initially set to the processor id.
+    public init(id: Int = 0, program: Assembly) {
+      self.id = id
+      self.program = program
+      self[Processor.ID_REGISTER] = Int(id)
     }
 
-    // Execute the given program on this processor.
-    public func execute(_ program: Assembly) {
-      while pc >= 0 && pc < program.instructions.count {
-        let instruction = program.instructions[pc]
-        // Save the program counter to detect the instruction made a jump.
-        let old_pc = pc
-        instruction.execute(on: self)
-        if pc == old_pc {
-          // Here we did not perform jump or stopped execution, so we simply
-          // advance the program counter.
-          pc += 1
+    // Register the given callback function to be called when the provided
+    // event arise. Returns the callback previously setup for the event if any.
+    @discardableResult
+    public func on(_ event: Event, _ fn: @escaping Callback) -> Callback? {
+      let old = listeners[event]
+      listeners[event] = fn
+      return old
+    }
+
+    // Execute the program on this processor.
+    public func run() {
+      while let current = instruction {
+        execute(current)
+        if !advance() {
+          // Here we did not made progress by executing the current
+          // instruction, i.e. we're waiting. Explicitely break the loop since
+          // we still do have a next instruction (the same as the current).
+          break
         }
       }
     }
 
-    // Shortcut to get and set this processor registers.
+    // Send the given message to this CPU.
+    public func notify(msg: Int) {
+      messages.append(msg)
+    }
+
+    // Returns true if this CPU is waiting to receive a message, false
+    // otherwise.
+    public var is_waiting: Bool {
+      return state == .wait && messages.count == 0
+    }
+
+    // Returns true if this CPU is stopped, false otherwise.
+    public var is_stopped: Bool {
+      return state == .stop
+    }
+
+    // Execute a given instruction on this processor.
+    func execute(_ instruction: Assembly.Instruction) {
+      // syntaxic sugar to evaluate an Expression.
+      func eval(_ expression: Assembly.Instruction.Expression) -> Int {
+        return expression.eval(fetch: { self[$0] })
+      }
+      switch instruction {
+        // v1 & v2 instructions
+        case .set(let reg, let exp):
+          self[reg] = eval(exp)
+        case .add(let reg, let exp):
+          self[reg] = self[reg] + eval(exp)
+        case .mul(let reg, let exp):
+          self[reg] = self[reg] * eval(exp)
+        case .mod(let reg, let exp):
+          self[reg] = self[reg] % eval(exp)
+        case .jgz(let cond, let offset):
+          if eval(cond) > 0 {
+            // NOTE: minus one because the pc will be advanced by one after the jump
+            // instruction execution.
+            pc += Int(eval(offset) - 1)
+          }
+        // v1 instructions are implemented on top of the CPU messages queue:
+        // each sound played is added at the end of the queue, and the recover
+        // instruction simply emit the last inserted message.
+        case .play(let src):
+          messages.append(eval(src))
+        case .recover(let cond):
+          if self[cond] != 0 {
+            guard let on_recover = listeners[.recover] else { return }
+            state = on_recover(messages.last)
+          }
+        // v2 instructions are implemented with the CPU messages queue: the
+        // send instruction only call the listener (if any) and the receive
+        // instruction consume the first element from the queue (if any).
+        case .send(let src):
+          guard let on_send = listeners[.send] else { return }
+          state = on_send(eval(src))
+        case .receive(let dest):
+          if let value = messages.first {
+            // We got a message, consume it and set the destination register
+            // with the message's value.
+            messages.removeFirst()
+            self[dest] = value
+            // When we retry a .receive instruction we are in .wait state. Now
+            // that we got our message let's .proceed again (NOTE: we could
+            // also just be .proceed'ing here)
+            state = .proceed
+          } else {
+            // We don't have a message to consume for our .receive instruction.
+            // Let's .wait and retry this instruction on the next run.
+            state = .wait
+          }
+      }
+    }
+
+    // Advance the program counter if we are not waiting nor stopped. Then,
+    // stop if we've reached the end of the program. Returns true if the
+    // program counter has changed, false otherwise.
+    func advance() -> Bool {
+      guard state == .proceed else { return false }
+      pc += 1
+      // Check against zero just to be sure, (e.g. bad jump).
+      if !(0..<program.instructions.count).contains(pc) {
+        state = .stop
+      }
+      return true
+    }
+
+    // The instruction to be executed by the CPU, if any.
+    var instruction: Assembly.Instruction? {
+      guard state != .stop else { return nil }
+      return program.instructions[pc]
+    }
+
+    // Shortcut to get & set registers, honoring the configured default value
+    // when a register has none.
     subscript(_ reg: Register) -> Int {
       get {
-        return registers[reg] ?? default_value
+        return registers[reg, default: default_value]
       }
       set(newValue) {
         registers[reg] = newValue
       }
     }
+  }
 
-    // Play the sound with a frequency taken from the given register.
-    func play(source: Register) {
-      sound = self[source]
+  // Run both given processor until both are stop or a deadlock happen.  Before
+  // they are run, the processors are setup to communicate with each other:
+  // that is when p0 (or p1) send a message, p1 (respectively p0) is notified.
+  // If a callback was already setup for the .send event it will still be
+  // called.
+  public static func run_in_duet(_ p0: Processor, and p1: Processor) {
+    // Install a dummy callback for the .send event just so that we can
+    // retrieve the current one (if any).
+    let maybe_p0_on_send = p0.on(.send) { _ in return .stop }
+    let maybe_p1_on_send = p1.on(.send) { _ in return .stop }
+    // Now bind to the .send event to notifiy the other processor, "wrapping"
+    // the callback previously installed.
+    p0.on(.send) {
+      p1.notify(msg: $0!)
+      guard let p0_on_send = maybe_p0_on_send else { return .proceed }
+      return p0_on_send($0)
     }
-
-    // Recover the last played frequency.
-    func recover() {
-      // NOTE: if the receive callback returns false, we should stop the
-      // program's execution.
-      if !rcv(sound) {
-        pc = -1 // terminate the execution
-      }
+    p1.on(.send) {
+      p0.notify(msg: $0!)
+      guard let p1_on_send = maybe_p1_on_send else { return .proceed }
+      return p1_on_send($0)
     }
-
-    // Perform a jump to the instruction at the given offset with respect to
-    // the current one.
-    func jump(offset: Int) {
-      pc += offset
+    // Run both processor until they stop or we're in a deadlock situation
+    // (i.e. both CPU are waiting)
+    let both_stopped = { p0.is_stopped && p1.is_stopped }
+    let deadlock     = { p0.is_waiting && p1.is_waiting }
+    while !both_stopped() && !deadlock() {
+      p0.run()
+      p1.run()
     }
   }
 }
