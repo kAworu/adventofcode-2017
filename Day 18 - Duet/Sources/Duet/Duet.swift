@@ -165,9 +165,9 @@ public class Duet {
     // Register the given callback function to be called when the provided
     // event arise. Returns the callback previously setup for the event if any.
     @discardableResult
-    public func on(_ event: Event, _ fn: @escaping Callback) -> Callback? {
+    public func on(_ event: Event, callback: @escaping Callback) -> Callback? {
       let old = listeners[event]
-      listeners[event] = fn
+      listeners[event] = callback
       return old
     }
 
@@ -295,10 +295,11 @@ public class Duet {
   public static func run_in_duet(_ p0: Processor, and p1: Processor) {
     // Install a dummy callback for the .send event just so that we can
     // retrieve the current one (if any).
-    let maybe_p0_on_send = p0.on(.send) { _ in return .stop }
-    let maybe_p1_on_send = p1.on(.send) { _ in return .stop }
-    // Now bind to the .send event to notifiy the other processor, "wrapping"
-    // the callback previously installed.
+    let noop: Processor.Callback = { _ in .proceed }
+    let maybe_p0_on_send = p0.on(.send, callback: noop)
+    let maybe_p1_on_send = p1.on(.send, callback: noop)
+    // Bind to the .send event to notifiy the other processor, "wrapping" the
+    // callback previously installed. NOTE: a retain cycle is created here.
     p0.on(.send) {
       p1.notify(msg: $0!)
       guard let p0_on_send = maybe_p0_on_send else { return .proceed }
@@ -317,5 +318,8 @@ public class Duet {
       p0.run()
       p1.run()
     }
+    // Restore the old .send callbacks (if any), breaking the retain cycle.
+    p0.on(.send, callback: maybe_p0_on_send ?? noop)
+    p1.on(.send, callback: maybe_p1_on_send ?? noop)
   }
 }
