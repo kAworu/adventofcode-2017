@@ -2,8 +2,7 @@ import MINSTD
 
 // The encountered pair of generators.
 public class DuelingGenerators {
-  let A: MINSTD
-  let B: MINSTD
+  let A, B: MINSTD
 
   // Create a new pair of generator given their initial value.
   public init(A: Int, B: Int) {

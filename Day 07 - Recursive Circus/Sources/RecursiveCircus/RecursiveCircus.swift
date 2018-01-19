@@ -68,15 +68,13 @@ public class RecursiveCircus {
 
     let name: String
     let weight: Int
-    var parent: Program?
-    var children: Set<Program>
+    var parent: Program? = nil
+    var children: Set<Program> = []
 
     // Create a new program without parent nor children.
     init(name: String, weight: Int) {
-      self.name     = name
-      self.weight   = weight
-      self.parent   = nil
-      self.children = []
+      self.name   = name
+      self.weight = weight
     }
 
     // Returns true if this program has at least one child, false otherwise.

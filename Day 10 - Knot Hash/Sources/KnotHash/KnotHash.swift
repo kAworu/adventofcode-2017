@@ -18,8 +18,8 @@ public class KnotHash {
 
   // hasher's internal state members
   var state: [UInt8]
-  var position: Int
-  var skip_size: Int
+  var position: Int  = 0
+  var skip_size: Int = 0
 
   // Syntaxic sugar to create a hasher with the default internal state.
   public convenience init() {
@@ -33,9 +33,7 @@ public class KnotHash {
 
   // Create a hasher from an array of bytes.
   init(_ state: [UInt8]) {
-    self.state     = state
-    self.position  = 0
-    self.skip_size = 0
+    self.state = state
   }
 
   // Exposed (i.e. public) access to the first two bytes of the internal state.
@@ -52,14 +50,11 @@ public class KnotHash {
   public func update(_ lengths: [UInt8]) {
     // Helper function reversing part of the given array.
     func reverse(from: Int, until: Int) {
-      // swap the ith and jth element in state,
-      // see https://en.wikipedia.org/wiki/XOR_swap_algorithm
+      // Helper swapping the ith and jth element in state.
       func swap(_ i: Int, _ j: Int) {
-        state[i] ^= state[j]
-        state[j] ^= state[i]
-        state[i] ^= state[j]
+        (state[i], state[j]) = (state[j], state[i])
       }
-      var (from, until) = (from, until) // "deconst" from and until
+      var (from, until) = (from, until) // deconst
       // NOTE: the first part of the loop condition checks if `from` is not
       // wrapped and `until` is wrapped because in that case `until` is lesser
       // than `from` *but* we should continue to swap.

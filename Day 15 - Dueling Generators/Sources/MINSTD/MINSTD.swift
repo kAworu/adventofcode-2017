@@ -13,9 +13,9 @@ public struct MINSTD: Sequence {
 
   // Create a new generator. x0 should be coprime to n.
   public init(first x0: Int, factor: Factor, n: UInt64 = MINSTD.M31) {
-    self.x0 = UInt64(x0)
+    self.x0     = UInt64(x0)
     self.factor = factor.rawValue
-    self.n = n
+    self.n      = n
   }
 
   // Returns a new iterator over the generator values.
@@ -31,7 +31,7 @@ public struct MINSTD: Sequence {
     // Create an iterator given its generator.
     init(_ generator: MINSTD) {
       self.generator = generator
-      self.state = generator.x0
+      self.state     = generator.x0
     }
 
     // Generate and return a new random number.

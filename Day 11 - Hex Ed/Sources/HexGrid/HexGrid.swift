@@ -1,7 +1,7 @@
 // Hex point move operator (hexagon),
 // see https://en.wikibooks.org/wiki/Unicode/List_of_useful_symbols#Geometric_Shapes
 infix operator ⬡ : AdditionPrecedence
-// Distance between two Hex points  operator (horizontal ellipsis),
+// Distance between two Hex points operator (horizontal ellipsis),
 // see https://en.wikibooks.org/wiki/Unicode/List_of_useful_symbols#Mathematical_typography
 infix operator ⋯ : AdditionPrecedence
 
@@ -56,9 +56,7 @@ public class HexGrid {
   public struct Point {
     public static let zero = Point(x: 0, y: 0, z: 0)
 
-    let x: Int
-    let y: Int
-    let z: Int
+    let x, y, z: Int
 
     // Returns the neighbour of this point at the given direction.
     static func ⬡ (from: Point, direction: Direction) -> Point {

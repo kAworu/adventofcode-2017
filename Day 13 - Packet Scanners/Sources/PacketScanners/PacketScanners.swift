@@ -46,8 +46,7 @@ public class PacketScanners {
 
   // Represents one layer of the firewall.
   class Layer {
-    let depth: Int
-    let range: Int
+    let depth, range: Int
 
     // Create a new layer at a given depth with the provided range.
     init(depth: Int, range: Int) {
