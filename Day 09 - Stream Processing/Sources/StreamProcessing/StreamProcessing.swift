@@ -25,20 +25,19 @@ public class StreamProcessing {
   static func parse_group(_ tokens: Tokenizer) -> Stream? {
     var children: [Stream] = []
     guard let lookahead = tokens.peek() else { return nil }
-    switch lookahead {
-      case .group_end: // empty group
-        let _ = tokens.next() // eat the end-of-group token
-      default:
-        inside: while true { // parsing loop, one child per iteration.
-          guard let child = parse(tokens) else { return nil }
-          children.append(child)
-          guard let token = tokens.next() else { return nil }
-          switch token {
-            case .group_sep: continue inside
-            case .group_end: break inside
-            default:         return nil
-          }
+    if case .group_end = lookahead {
+      let _ = tokens.next() // eat the end-of-group token
+    } else {
+      inside: while true { // parsing loop, one child per iteration.
+        guard let child = parse(tokens) else { return nil }
+        children.append(child)
+        guard let token = tokens.next() else { return nil }
+        switch token {
+          case .group_sep: continue inside
+          case .group_end: break inside
+          default:         return nil
         }
+      }
     }
     return Stream.group(children: children)
   }
