@@ -152,6 +152,7 @@ public class Duet {
     var state: Execution = .proceed        // execution flow state.
     var pc: Int = 0                        // program counter.
     var listeners: [Event: Callback] = [:] // registered callback per event.
+    var sound: Int? = nil                  // The last played sound.
     var messages: [Int] = []               // FIFO message queue for this CPU.
 
     // Create a new processor given its id. The Processor.ID_REGISTER will be
@@ -222,15 +223,13 @@ public class Duet {
             // instruction execution.
             pc += Int(eval(offset) - 1)
           }
-        // v1 instructions are implemented on top of the CPU messages queue:
-        // each sound played is added at the end of the queue, and the recover
-        // instruction simply emit the last inserted message.
+        // v1 instructions
         case .play(let src):
-          messages.append(eval(src))
+          sound = eval(src)
         case .recover(let cond):
           if self[cond] != 0 {
             guard let on_recover = listeners[.recover] else { return }
-            state = on_recover(messages.last)
+            state = on_recover(sound)
           }
         // v2 instructions are implemented with the CPU messages queue: the
         // send instruction only call the listener (if any) and the receive
