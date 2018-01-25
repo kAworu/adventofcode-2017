@@ -63,7 +63,7 @@ public class LikableRegisters {
   }
 
   // Represents an unusual register instruction.
-  class Instruction {
+  struct Instruction {
     static let REGEX = Regex("([a-z]+) (inc|dec) (-?[0-9]+) if ([a-z]+) (<|<=|>|>=|==|!=) (-?[0-9]+)")
 
     // this instruction "move" and "comparison" expressions.

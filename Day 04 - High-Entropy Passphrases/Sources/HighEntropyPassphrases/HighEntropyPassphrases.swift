@@ -36,7 +36,7 @@ public class HighEntropyPassphrases {
 
   // Helper class for part 2, anagrams will have the same CountedChars string
   // description.
-  class CountedChars: CustomStringConvertible {
+  struct CountedChars: CustomStringConvertible {
     let counts: [Character: Int]
 
     // Create a character counter from a given word.

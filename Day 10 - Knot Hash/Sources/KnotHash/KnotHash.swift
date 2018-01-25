@@ -87,7 +87,7 @@ public class KnotHash {
   }
 
   // Represent a finalized KnotHash result.
-  public class Result: CustomStringConvertible {
+  public struct Result: CustomStringConvertible {
     public let bytes: [UInt8]
 
     // Create a result givens its bytes.

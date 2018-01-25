@@ -123,7 +123,7 @@ public class RecursiveCircus {
     }
 
     // see Program.total_weight()
-    public class InvalidWeightError: Error {
+    public struct InvalidWeightError: Error {
       public let culprit: Program
       let delta: Int
 

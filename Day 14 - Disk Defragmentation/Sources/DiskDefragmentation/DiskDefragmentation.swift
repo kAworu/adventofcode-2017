@@ -72,7 +72,7 @@ public class DiskDefragmentation {
   }
 
   // Represents one row of the grid.
-  class Row {
+  struct Row {
     let hash: KnotHash.Result
 
     // Create a row given an input String. The row's square will be set from

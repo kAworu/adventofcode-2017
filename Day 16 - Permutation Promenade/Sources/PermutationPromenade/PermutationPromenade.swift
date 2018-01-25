@@ -77,7 +77,7 @@ public class PermutationPromenade: CustomStringConvertible, Hashable {
   }
 
   // Represent a serie of move to be performed a number of times.
-  public class Tune {
+  public struct Tune {
     // Returns a new tune that is the given one repeated n times.
     public static func ♯ (to_repeat: Tune, n: Int) -> Tune {
       return Tune(moves: to_repeat.moves, times: n * to_repeat.times)
@@ -111,7 +111,7 @@ public class PermutationPromenade: CustomStringConvertible, Hashable {
     let times: Int    // the number of time moves are repeated
 
     // Create a tune from a string description of moves.
-    public convenience init(_ song: String) {
+    public init(_ song: String) {
       let moves = song.split(separator: ",").map { Move.parse(String($0))! }
       self.init(moves: moves)
     }
