@@ -57,7 +57,7 @@ public class LikableRegisters {
     }
 
     // Returns the register holding the current max value.
-    public var max: (key: String, value: Int)? {
+    public func max() -> (key: String, value: Int)? {
       return self.registers.max(by: { $0.value < $1.value })
     }
   }

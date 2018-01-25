@@ -52,8 +52,18 @@ public class StreamProcessing {
     case group(children: [Stream])
 
     // Returns this stream's total score.
-    public var score: Int {
+    public func score() -> Int {
       return score(depth: 1)
+    }
+
+    // Return the number of characters within the garbage.
+    public func garbage_count() -> Int {
+      switch self {
+        case .garbage(let content):
+          return content.count
+        case .group(let children):
+          return children.reduce(0) { $0 + $1.garbage_count() }
+      }
     }
 
     // Returns this stream's total score at the given depth.
@@ -63,16 +73,6 @@ public class StreamProcessing {
           return 0
         case .group(let children):
           return children.reduce(depth) { $0 + $1.score(depth: depth + 1) }
-      }
-    }
-
-    // Return the number of characters within the garbage.
-    public var garbage_count: Int {
-      switch self {
-        case .garbage(let content):
-          return content.count
-        case .group(let children):
-          return children.reduce(0) { $0 + $1.garbage_count }
       }
     }
   }

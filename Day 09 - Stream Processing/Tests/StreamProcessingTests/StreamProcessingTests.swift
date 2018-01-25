@@ -15,7 +15,7 @@ class StreamProcessingTests: XCTestCase {
       "{{<a!>},{<a!>},{<a!>},{<ab>}}": 3,
     ].forEach() { test in
       let stream = StreamProcessing.parse(test.key)!
-      XCTAssertEqual(stream.score, test.value)
+      XCTAssertEqual(stream.score(), test.value)
     }
   }
 
@@ -30,7 +30,7 @@ class StreamProcessingTests: XCTestCase {
       "<{o\"i!a,<{i<a>": 10,
     ].forEach() { test in
       let stream = StreamProcessing.parse(test.key)!
-      XCTAssertEqual(stream.garbage_count, test.value)
+      XCTAssertEqual(stream.garbage_count(), test.value)
     }
   }
 }

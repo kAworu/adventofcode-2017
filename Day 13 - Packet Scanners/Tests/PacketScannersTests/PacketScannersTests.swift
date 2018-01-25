@@ -17,7 +17,7 @@ class PacketScannersTests: XCTestCase {
 
   func testPartTwo() {
     let firewall = PacketScanners(PacketScannersTests.PUZZLE)
-    XCTAssertEqual(firewall.safe_trip_delay, 10)
+    XCTAssertEqual(firewall.safe_trip_delay(), 10)
   }
 }
 

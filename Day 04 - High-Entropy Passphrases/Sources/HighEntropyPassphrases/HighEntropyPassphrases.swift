@@ -9,13 +9,13 @@ public class HighEntropyPassphrases {
 
   // Returns false if this passphrase contains no duplicate words,
   // true otherwise.
-  public var has_duplicate_word: Bool {
+  public func has_duplicate_word() -> Bool {
     return has_duplicate { $0 }
   }
 
   // Returns false if this passphrase contains no two words that are anagrams
   // of each other, true otherwise.
-  public var has_anagram: Bool {
+  public func has_anagram() -> Bool {
     return has_duplicate { "\(CountedChars($0))" }
   }
 

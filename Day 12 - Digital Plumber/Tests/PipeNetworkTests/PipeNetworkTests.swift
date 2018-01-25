@@ -15,12 +15,12 @@ class PipeNetworkTests: XCTestCase {
   func testPartOne() {
     let network = PipeNetwork(PipeNetworkTests.PUZZLE)!
     let p0 = network[program: 0]!
-    XCTAssertEqual(p0.group.count, 6)
+    XCTAssertEqual(p0.group().count, 6)
   }
 
   func testPartTwo() {
     let network = PipeNetwork(PipeNetworkTests.PUZZLE)!
-    XCTAssertEqual(network.groups.count, 2)
+    XCTAssertEqual(network.groups().count, 2)
   }
 }
 

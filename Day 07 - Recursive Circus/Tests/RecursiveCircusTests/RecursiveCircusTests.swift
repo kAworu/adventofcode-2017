@@ -20,13 +20,13 @@ class RecursiveCircusTests: XCTestCase {
 
   func testPartOne() {
     let tower = RecursiveCircus(RecursiveCircusTests.PUZZLE)!
-    XCTAssertEqual(tower.bottom_program!.name, "tknk")
+    XCTAssertEqual(tower.bottom_program()!.name, "tknk")
   }
 
   func testPartTwo() {
     let tower = RecursiveCircus(RecursiveCircusTests.PUZZLE)!
     do {
-      let _ = try tower.bottom_program!.total_weight()
+      let _ = try tower.bottom_program()!.total_weight()
       XCTFail("Expected an Error to be thrown.")
     } catch let err as RecursiveCircus.Program.InvalidWeightError {
       XCTAssertEqual(err.culprit.name, "ugml")

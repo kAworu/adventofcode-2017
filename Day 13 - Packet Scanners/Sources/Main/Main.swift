@@ -12,4 +12,4 @@ func get_puzzle() -> [String] {
 let puzzle   = get_puzzle()
 let firewall = PacketScanners(puzzle)
 print("When leaving immediatley the trip severity is \(firewall.trip_severity(delay: 0)),")
-print("and the smallest delay required to travel without being caught is \(firewall.safe_trip_delay) picoseconds.")
+print("and the smallest delay required to travel without being caught is \(firewall.safe_trip_delay()) picoseconds.")

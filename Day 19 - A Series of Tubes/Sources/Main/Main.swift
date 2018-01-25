@@ -10,7 +10,7 @@ func get_puzzle() -> [String] {
 }
 
 let puzzle  = get_puzzle()
-let path    = Tubes.RoutingDiagram(puzzle).path
+let path    = Tubes.RoutingDiagram(puzzle).path()
 let letters = path.map { "\($0)" }
 print("the packet has collected the letters \(letters.joined()),")
 print("and has done \(path.count) steps.")

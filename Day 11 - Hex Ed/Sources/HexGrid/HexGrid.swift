@@ -42,12 +42,12 @@ public class HexGrid {
     }
 
     // The distance between the starting and landing points.
-    public var final_distance: UInt {
+    public func final_distance() -> UInt {
       return starting_point ⋯  landing_point
     }
 
     // The furthest distance from the starting point in this path.
-    public var furthest_distance: UInt {
+    public func furthest_distance() -> UInt {
       return positions.map { starting_point ⋯  $0 }.max()!
     }
   }

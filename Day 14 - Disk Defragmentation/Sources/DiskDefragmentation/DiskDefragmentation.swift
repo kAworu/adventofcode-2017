@@ -2,7 +2,7 @@ import KnotHash
 
 extension KnotHash.Result {
   // Hamming weight over the KnotHash.Result bytes.
-  var popcnt: Int {
+  func popcnt() -> Int {
     return bytes.reduce(0) { $0 + $1.nonzeroBitCount }
   }
 }
@@ -20,18 +20,18 @@ public class DiskDefragmentation {
     self.rows  = inputs.map { Row(input: $0) }
   }
 
-  // Returns the grid's height.
+  // This grid's height.
   var height: Int {
     return rows.count
   }
 
   // Returns the count of used (i.e. non-free) squares.
-  public var used_square_count: Int {
-    return rows.reduce(0) { $0 + $1.used_square_count }
+  public func used_square_count() -> Int {
+    return rows.reduce(0) { $0 + $1.used_square_count() }
   }
 
   // Returns the count of regions in this grid.
-  public var region_count: Int {
+  public func region_count() -> Int {
     var count = 0
     var grouped: Set<Point> = [] // Set of square point already accounted for
     for y in 0..<height {
@@ -81,14 +81,14 @@ public class DiskDefragmentation {
       hash = KnotHash.hash(input)
     }
 
-    // Returns this row's width.
+    // This row's width.
     var width: Int {
       return 8 * hash.bytes.count // 8 bits per byte.
     }
 
     // Returns the count of used square in this row.
-    var used_square_count: Int {
-      return hash.popcnt
+    func used_square_count() -> Int {
+      return hash.popcnt()
     }
 
     // Returns true if the square at the given index is used, false otherwise.

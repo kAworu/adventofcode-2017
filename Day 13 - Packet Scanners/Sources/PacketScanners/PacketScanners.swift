@@ -26,7 +26,7 @@ public class PacketScanners {
 
   // Returns the minimum delay (in picoseconds) for which the packet is not
   // caught by any layer.
-  public var safe_trip_delay: Int {
+  public func safe_trip_delay() -> Int {
     // Check small frequency layers first, speed up by ~10%
     let layers = self.layers.sorted(by: { $0.frequency < $1.frequency })
     // Start at one since we always get caught by the layer at depth=0 when
@@ -54,7 +54,7 @@ public class PacketScanners {
       self.range = range
     }
 
-    // Returns this layer's security scanner frequency.
+    // This layer's security scanner frequency.
     var frequency: Int {
       return 2 * (range - 1)
     }
@@ -65,7 +65,7 @@ public class PacketScanners {
       return (frequency == 0 || (depth + delay) % frequency == 0)
     }
 
-    // Returns this layer severity of getting caught by it.
+    // This layer severity of getting caught by it.
     var severity: Int {
       return range * depth
     }

@@ -44,7 +44,7 @@ public class RecursiveCircus {
   }
 
   // Returns the "root" program of this tower (if any).
-  public var bottom_program: Program? {
+  public func bottom_program() -> Program? {
     return programs.first(where: { $0.is_parent && !$0.is_child })
   }
 
@@ -77,12 +77,12 @@ public class RecursiveCircus {
       self.weight = weight
     }
 
-    // Returns true if this program has at least one child, false otherwise.
+    // True if this program has at least one child, false otherwise.
     var is_parent: Bool {
       return !children.isEmpty
     }
 
-    // Returns true if this program has a parent, false otherwise.
+    // True if this program has a parent, false otherwise.
     var is_child: Bool {
       return parent != nil
     }
@@ -134,7 +134,7 @@ public class RecursiveCircus {
         self.delta   = delta
       }
 
-      // Returns the corrected weight of our culprit.
+      // The corrected weight of our culprit.
       public var corrected_weight: Int {
         return culprit.weight + delta
       }

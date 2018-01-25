@@ -13,8 +13,8 @@ class LikableRegistersTests: XCTestCase {
     let program = LikableRegisters(LikableRegistersTests.PUZZLE)!
     let cpu = LikableRegisters.Processor()
     let _ = program.compute(on: cpu)
-    XCTAssertEqual(cpu.max?.key, "a")
-    XCTAssertEqual(cpu.max?.value, 1)
+    XCTAssertEqual(cpu.max()?.key, "a")
+    XCTAssertEqual(cpu.max()?.value, 1)
   }
 
   func testPartTwo() {

@@ -47,13 +47,13 @@ public class PipeNetwork {
   }
 
   // Returns the Set of the different program groups.
-  public var groups: Set<Set<Program>> {
+  public func groups() -> Set<Set<Program>> {
     var groups: Set<Set<Program>> = []
     var to_visit = self.programs
     while let program = to_visit.popFirst() {
-      let group = program.group
-      groups.insert(group)
-      to_visit ∖= group
+      let g = program.group()
+      groups.insert(g)
+      to_visit ∖= g
     }
     return groups
   }
@@ -87,7 +87,7 @@ public class PipeNetwork {
 
     // Returns the Set of all the programs connected to this program through a
     // pipe (including self).
-    public var group: Set<Program> {
+    public func group() -> Set<Program> {
       var to_visit: Set<Program> = [self]
       var visited: Set<Program>  = []
       while let program = to_visit.popFirst() {

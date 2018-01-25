@@ -8,7 +8,7 @@ public struct SpiralMemory {
   }
 
   // Returns the steps count between the access port and our target.
-  public var snake_distance: Int {
+  public func snake_distance() -> Int {
     // Each spirale "circle" ends with the square of an odd number. We'll call
     // this number the circle's "level", and it follow that the circle level n
     // contains the numbers between (n - 2) ** 2 + 1 and n ** 2.
@@ -46,7 +46,7 @@ public struct SpiralMemory {
 
   // Returns the first value written larger than our target by the programs
   // when stress testing the system.
-  public var stress_test_gt: Int {
+  public func stress_test_gt() -> Int {
     var p         = Point(x: 0, y: 0) // our current position
     var spiral    = [p: 1]
     var direction = Direction.east

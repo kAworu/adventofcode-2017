@@ -9,12 +9,12 @@ public class InverseCaptcha {
   }
 
   // Returns the sum of digit having a match with the immediate next one.
-  public var neighbour_sum: Int {
+  public func neighbour_sum() -> Int {
     return solve { i in (i + 1) % digits.count }
   }
 
   // Returns the sum of digit having a match with the halfway around digit.
-  public var halfway_around_sum: Int {
+  public func halfway_around_sum() -> Int {
     return solve { i in (i + digits.count / 2) % digits.count }
   }
 

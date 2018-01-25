@@ -8,13 +8,13 @@ public class TwistyTrampolinesMaze {
   }
 
   // After each jump, the offset of that instruction increases by one.
-  public var strange_jumps_exit: Int {
+  public func strange_jumps_exit() -> Int {
     return step_count_to_exit { $0 + 1 }
   }
 
   // After each jump, the offset of that instruction increase (or decrease) by
   // one if it was lesser than three (respectively three or more).
-  public var stranger_jumps_exit: Int {
+  public func stranger_jumps_exit() -> Int {
     return step_count_to_exit { $0 + ($0 >= 3 ? -1 : +1) }
   }
 

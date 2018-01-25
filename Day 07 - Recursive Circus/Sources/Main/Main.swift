@@ -11,7 +11,7 @@ func get_puzzle() -> [String] {
 
 let puzzle = get_puzzle()
 let tower  = RecursiveCircus(puzzle)!
-let bottom = tower.bottom_program!
+let bottom = tower.bottom_program()!
 print("The bottom program is \(bottom),")
 do {
   let tower_weight = try bottom.total_weight()

@@ -86,7 +86,7 @@ public class Tubes {
 
     // Returns the sequence of lines encountered when following the diagram
     // starting at the start position.
-    public var path: [Line] {
+    public func path() -> [Line] {
       var path: [Line] = []
       guard var position = start else { return path }
       var direction = Direction.south
@@ -94,14 +94,14 @@ public class Tubes {
         let ahead = position[direction]
         switch (self[position], self[ahead]) {
           // cases when we need to take a turn. Have to be on a cross.
-          case (.cross, .horizontal) where direction.vertical:   fallthrough
-          case (.cross, .vertical)   where direction.horizontal: fallthrough
+          case (.cross, .horizontal) where direction.is_vertical:   fallthrough
+          case (.cross, .vertical)   where direction.is_horizontal: fallthrough
           case (.cross, .void):
             let next = Direction.all(but: direction.opposite).first(where: {
               switch self[position[$0]] {
                 case .cross, .letter(_): return true
-                case .vertical:   return $0.vertical
-                case .horizontal: return $0.horizontal
+                case .vertical:   return $0.is_vertical
+                case .horizontal: return $0.is_horizontal
                 default: return false
               }
             })
@@ -137,14 +137,14 @@ public class Tubes {
       }
     }
 
-    // Returns true if this direction is vertical, false otherwise.
-    var vertical: Bool {
+    // True if this direction is vertical, false otherwise.
+    var is_vertical: Bool {
       return self == .north || self == .south
     }
 
-    // Returns true if this direction is horizontal, false otherwise.
-    var horizontal: Bool {
-      return !vertical
+    // True if this direction is horizontal, false otherwise.
+    var is_horizontal: Bool {
+      return !is_vertical
     }
   }
 

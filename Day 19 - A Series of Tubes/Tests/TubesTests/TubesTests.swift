@@ -12,13 +12,13 @@ class TubesTests: XCTestCase {
   ]
 
   func testPartOne() {
-    let path    = Tubes.RoutingDiagram(TubesTests.PUZZLE).path
+    let path    = Tubes.RoutingDiagram(TubesTests.PUZZLE).path()
     let letters = path.map { "\($0)" }
     XCTAssertEqual(letters.joined(), "ABCDEF")
   }
 
   func testPartTwo() {
-    let path    = Tubes.RoutingDiagram(TubesTests.PUZZLE).path
+    let path    = Tubes.RoutingDiagram(TubesTests.PUZZLE).path()
     let letters = path.map { "\($0)" }
     XCTAssertEqual(letters.count, 38)
   }

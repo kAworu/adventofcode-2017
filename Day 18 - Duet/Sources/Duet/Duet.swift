@@ -190,13 +190,12 @@ public class Duet {
       messages.append(msg)
     }
 
-    // Returns true if this CPU is waiting to receive a message, false
-    // otherwise.
+    // True if this CPU is waiting to receive a message, false otherwise.
     public var is_waiting: Bool {
       return state == .wait && messages.count == 0
     }
 
-    // Returns true if this CPU is stopped, false otherwise.
+    // True if this CPU is stopped, false otherwise.
     public var is_stopped: Bool {
       return state == .stop
     }
