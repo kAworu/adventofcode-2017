@@ -239,10 +239,11 @@ public class ParticleSwarm {
     // given other one. The two collision must happen at the same time and
     // position, otherwise nil is returned.
     func merge(with other: Collision) -> Collision? {
-      guard other.time == self.time         else { return nil }
-      guard other.position == self.position else { return nil }
+      // NOTE: the position constraint is going to be ensured by the
+      // constructor, but we need to check the time constraint.
+      guard other.time == self.time else { return nil }
       let particles = self.particles.union(other.particles)
-      return Collision(at: time, particles: particles)!
+      return Collision(at: time, particles: particles)
     }
 
     // Returns a new collision that is this collisions without the given set of
