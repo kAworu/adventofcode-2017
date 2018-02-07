@@ -66,7 +66,7 @@ public class PermutationPromenade: CustomStringConvertible, Hashable {
     return programs.count
   }
 
-  // Display the programs in ordered.
+  // Display the programs in order.
   public var description: String {
     return String(programs)
   }
