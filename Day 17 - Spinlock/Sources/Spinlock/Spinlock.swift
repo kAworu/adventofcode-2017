@@ -1,5 +1,5 @@
 // Teh memory vortex!
-public class Spinlock: CustomStringConvertible {
+public class Spinlock: CustomDebugStringConvertible {
   let step: Int          // count of step performed at each spin.
   var state: [Int] = [0] // the memory.
   var position: Int = 0  // the current position.
@@ -26,7 +26,7 @@ public class Spinlock: CustomStringConvertible {
   }
 
   // Display the lock state.
-  public var description: String {
+  public var debugDescription: String {
     let (head, current, tail) = (0, position, state.count - 1)
     return state.enumerated().map { (i, x) in
       switch i {
