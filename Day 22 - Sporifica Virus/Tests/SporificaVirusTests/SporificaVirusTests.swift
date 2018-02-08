@@ -2,21 +2,22 @@ import XCTest
 @testable import SporificaVirus
 
 class SporificaVirusTests: XCTestCase {
+  static let PUZZLE = """
+  ..#
+  #..
+  ...
+  """
 
   func testPartOne() {
-    let puzzle = """
-    ..#
-    #..
-    ...
-    """
-    let (top_left, bottom_right) = ((x: -4, y: -4), (x: 4, y: 3))
+    let top_left     = SporificaVirus.Point(x: -4, y: -4)
+    let bottom_right = SporificaVirus.Point(x:  4, y:  3)
     var burst_count     = 0
     var infection_count = 0
 
-    let cluster = SporificaVirus(grid: puzzle)!
+    let cluster = SporificaVirus(grid: SporificaVirusTests.PUZZLE, generation: .first)!
     cluster.on(.infected) { _ in
-      burst_count += 1
       infection_count += 1
+      burst_count     += 1
     }
     cluster.on(.clean) { _ in
       burst_count += 1
@@ -101,7 +102,96 @@ class SporificaVirusTests: XCTestCase {
   }
 
   func testPartTwo() {
-    // TODO
+    let top_left     = SporificaVirus.Point(x: -4, y: -4)
+    let bottom_right = SporificaVirus.Point(x:  4, y:  3)
+    var burst_count     = 0
+    var infection_count = 0
+
+    let cluster = SporificaVirus(grid: SporificaVirusTests.PUZZLE, generation: .evolved)!
+    cluster.on(.infected) { _ in
+      infection_count += 1
+      burst_count     += 1
+    }
+    cluster.on(.clean)    { _ in burst_count += 1 }
+    cluster.on(.weakened) { _ in burst_count += 1 }
+    cluster.on(.flagged)  { _ in burst_count += 1 }
+
+    XCTAssertEqual(cluster.draw(top_left, bottom_right), """
+    . . . . . . . . .
+    . . . . . . . . .
+    . . . . . . . . .
+    . . . . . # . . .
+    . . . #[.]. . . .
+    . . . . . . . . .
+    . . . . . . . . .
+    . . . . . . . . .
+    """)
+
+    cluster.burst()
+    XCTAssertEqual(cluster.draw(top_left, bottom_right), """
+    . . . . . . . . .
+    . . . . . . . . .
+    . . . . . . . . .
+    . . . . . # . . .
+    . . .[#]W . . . .
+    . . . . . . . . .
+    . . . . . . . . .
+    . . . . . . . . .
+    """)
+
+    cluster.burst()
+    XCTAssertEqual(cluster.draw(top_left, bottom_right), """
+    . . . . . . . . .
+    . . . . . . . . .
+    . . . . . . . . .
+    . . .[.]. # . . .
+    . . . F W . . . .
+    . . . . . . . . .
+    . . . . . . . . .
+    . . . . . . . . .
+    """)
+
+    cluster.burst(times: 3)
+    XCTAssertEqual(cluster.draw(top_left, bottom_right), """
+    . . . . . . . . .
+    . . . . . . . . .
+    . . . . . . . . .
+    . . W W . # . . .
+    . . W[F]W . . . .
+    . . . . . . . . .
+    . . . . . . . . .
+    . . . . . . . . .
+    """)
+
+    cluster.burst()
+    XCTAssertEqual(cluster.draw(top_left, bottom_right), """
+    . . . . . . . . .
+    . . . . . . . . .
+    . . . . . . . . .
+    . . W W . # . . .
+    . .[W]. W . . . .
+    . . . . . . . . .
+    . . . . . . . . .
+    . . . . . . . . .
+    """)
+
+    cluster.burst()
+    XCTAssertEqual(cluster.draw(top_left, bottom_right), """
+    . . . . . . . . .
+    . . . . . . . . .
+    . . . . . . . . .
+    . . W W . # . . .
+    .[.]# . W . . . .
+    . . . . . . . . .
+    . . . . . . . . .
+    . . . . . . . . .
+    """)
+
+    cluster.burst(times: 100 - burst_count)
+    XCTAssertEqual(infection_count, 26)
+
+    cluster.burst(times: 10_000_000 - burst_count)
+    XCTAssertEqual(infection_count, 2511944)
   }
 }
 
