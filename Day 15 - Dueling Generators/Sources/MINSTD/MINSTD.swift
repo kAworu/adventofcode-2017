@@ -35,8 +35,8 @@ public struct MINSTD: Sequence {
     }
 
     // Generate and return a new random number.
-    // NOTE: Although an UInt64 is returned (for performance's sake) only the
-    // last 31 bits are set.
+    // NOTE: Although an UInt64 is returned  only the last 31 bits are set when
+    //       using MINSTD.M31 as modulus n.
     public mutating func next() -> UInt64? {
       state = (state * generator.factor) % generator.n
       return state
