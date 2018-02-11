@@ -79,7 +79,7 @@ public class Duet {
             case .v2: return .receive(dest: reg)
           }
         } else if let match = Instruction.REG_REGEX.firstMatch(in: line) {
-          let reg  = Register(match.captures[1]!)
+          let reg = Register(match.captures[1]!)
           let exp = Expression.parse(match.captures[2]!)!
           switch match.captures[0]! {
             case "set": return .set(reg: reg, exp: exp)
