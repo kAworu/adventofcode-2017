@@ -1,0 +1,12 @@
+count = 0
+for (i = 0; i < 1001; i++) {
+    n = 93 * 100 + 100000 + i * 17
+    outer: for (x = 2; x < n; x++) {
+        for (y = 2; y < n; y++) {
+            if (x * y == n) {
+                count++
+                break outer
+            }
+        }
+    }
+}
