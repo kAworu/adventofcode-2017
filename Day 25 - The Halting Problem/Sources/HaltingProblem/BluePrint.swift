@@ -67,7 +67,7 @@ extension HaltingProblem {
 
       // Hold the state's actions (write, move) and the next state to
       // transition into.
-      struct Block {
+      class Block {
         let write: Value
         let direction: Direction
         weak var next: State? = nil
