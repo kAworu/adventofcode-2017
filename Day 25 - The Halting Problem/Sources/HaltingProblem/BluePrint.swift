@@ -1,28 +1,22 @@
 extension HaltingProblem {
   // Represents the Turing machine blueprint found in a bearby pile of debris.
-  class BluePrint {
+  struct BluePrint {
     // State name to state dictionary.
     typealias StateDict = [State.Name: State]
 
-    // the state we begin in.
-    let initial: State
+    // the name of the state we begin in.
+    let initial: State.Name
     // the step count to perform before performing a diagnostic checksum.
     let steps: Int
     // All the states.
     let states: StateDict
 
-    // Create a blueprint given its members.
-    init(initial: State, steps: Int, states: StateDict) {
-      self.initial = initial
-      self.steps   = steps
-      self.states  = states
-    }
-
     // Execute this blueprint on the given tape.
     func execute(on tape: HaltingProblem.Tape) {
-      var state = initial
+      var state = states[initial]!
       for _ in 1...steps {
-        state = state.execute(on: tape)
+        let name = state.execute(on: tape)
+        state = states[name]!
       }
     }
 
@@ -40,44 +34,32 @@ extension HaltingProblem {
     }
 
     // Represent a blueprint state.
-    class State {
+    struct State {
       typealias Name = String
 
       let name: Name
-      var blocks: (Block, Block)
-
-      // Create a state given its members.
-      init(name: Name, blocks: (Block, Block)) {
-        self.name   = name
-        self.blocks = blocks
-      }
+      let blocks: (Block, Block)
 
       // Get the block that should be executed for the given value.
       private subscript(value: Value) -> Block {
         return value == .zero ? blocks.0 : blocks.1
       }
 
-      // Execute this state on the given tape and return the new state.
-      func execute(on tape: Tape) -> State {
+      // Execute this state on the given tape and return the state name that
+      // should be transitioned into.
+      func execute(on tape: Tape) -> Name {
         let block = self[tape.current]
         tape.current = block.write
         tape.move(direction: block.direction)
-        return block.next!
+        return block.next
       }
 
       // Hold the state's actions (write, move) and the next state to
       // transition into.
-      class Block {
+      struct Block {
         let write: Value
         let direction: Direction
-        weak var next: State? = nil
-
-        // Create a block. It is expected that the next state should be defined
-        // after this constructor return.
-        init(write: Value, direction: Direction) {
-          self.write = write
-          self.direction = direction
-        }
+        let next: Name
       }
     }
   }

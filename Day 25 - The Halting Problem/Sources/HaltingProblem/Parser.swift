@@ -5,16 +5,6 @@ extension HaltingProblem.BluePrint {
 
   // Used to parse a blueprint string description into a full BluePrint object.
   class Parser {
-    // We need incomplete block and state representation because the block
-    // references their transition state. The incomplete rep. store the block
-    // not linked yet along with the state name they should reference. Only
-    // once all states are created the blocks can be "linked".
-    typealias IncompleteBlock = (block: State.Block, next: State.Name)
-    typealias IncompleteState = (
-      name: State.Name, blocks: (IncompleteBlock, IncompleteBlock)
-    )
-    typealias IncompleteStateDict = [State.Name: IncompleteState]
-
     // Regular expression detecting a blank line. This is needed because
     // blueprint description may have blank lines.
     private static let BLANK_LINE_RE = Regex("^\\s*$")
@@ -40,47 +30,35 @@ extension HaltingProblem.BluePrint {
     // Parse and return the BluePrint. Throws all sort of parsing errors.
     func blueprint() throws -> HaltingProblem.BluePrint {
       // First two lines should be the blueprint preamble.
-      let (initial_name, steps) = try parse_preamble()
-      // Build the incomplete states while there are statement left to process.
-      var incomplete: IncompleteStateDict = [:]
+      let (initial, steps) = try parse_preamble()
+      // Build the states while there are statement left to process.
+      var states: StateDict = [:]
       while !statements.isEmpty {
         let state = try parse_state()
-        incomplete[state.name] = state
-      }
-      // Complete the states now that they are all unwrapped.
-      let states = try self.complete(incomplete)
-      if let initial = states[initial_name] {
-        return HaltingProblem.BluePrint(initial: initial, steps: steps, states: states)
-      } else {
-        throw MissingStateError(name: initial_name, ref: nil)
-      }
-    }
-
-    // Complete a dictionary of incomplete states returning the result. Throws
-    // MissingStateError when a referenced state could not be found.
-    func complete(_ incomplete: IncompleteStateDict) throws -> StateDict {
-      // Simply create the states, references will be completed in a second
-      // pass.
-      var states: StateDict = [:]
-      for istate in incomplete.values {
-        let blocks = (istate.blocks.0.block, istate.blocks.1.block)
-        let state = State(name: istate.name, blocks: blocks)
         states[state.name] = state
       }
-      // Now build the transition references.
-      for state in states.values {
-        let (iblock0, iblock1) = incomplete[state.name]!.blocks
-        guard let next0 = states[iblock0.next] else {
-          throw MissingStateError(name: iblock0.next, ref: state)
+      try analyze(initial: initial, states: states)
+      return HaltingProblem.BluePrint(initial: initial, steps: steps, states: states)
+    }
+
+    // Semantic analysis on the blueprint states. Basically ensure that each
+    // state reference (initial "Begin in" state, transition states) are valid.
+    // throws a MissingStateError state error on the first invalid reference
+    // found.
+    func analyze(initial: State.Name, states: StateDict) throws {
+      // Helper to ensure that the given state name referenced by the given ref
+      // state exist in the states dictionary. Throws a MissingStateError if no
+      // state could be found with the provided name.
+      func check(_ name: State.Name, ref: State? = nil) throws {
+        guard let _ = states[name] else {
+          throw MissingStateError(name: name, ref: ref)
         }
-        state.blocks.0.next = next0
-        guard let next1 = states[iblock1.next] else {
-          throw MissingStateError(name: iblock1.next, ref: state)
-        }
-        state.blocks.1.next = next1
       }
-      // We're done.
-      return states
+      try check(initial)
+      for state in states.values {
+        try check(state.blocks.0.next, ref: state)
+        try check(state.blocks.1.next, ref: state)
+      }
     }
 
     // Parse the initial state and the number of steps to perform before
@@ -112,7 +90,7 @@ extension HaltingProblem.BluePrint {
     }
 
     // Parse and return exactly one state.
-    private func parse_state() throws -> IncompleteState {
+    private func parse_state() throws -> State {
       // Helper to unwrap the state's name from the first line of the
       // definition.
       func unwrap_name() throws -> State.Name {
@@ -166,7 +144,7 @@ extension HaltingProblem.BluePrint {
       }
       // Helper to unwrap a block, i.e. a condition for the given expected
       // value followed by a write, move, and next state transition.
-      func unwrap_block(expect: Value) throws -> IncompleteBlock {
+      func unwrap_block(expect: Value) throws -> State.Block {
         let cond = try unwrap_condition()
         if cond != expect {
           throw WrongConditionError(expected: expect, got: self.poped!)
@@ -174,14 +152,13 @@ extension HaltingProblem.BluePrint {
         let write = try unwrap_write()
         let direction = try unwrap_move()
         let next = try unwrap_next()
-        let block = State.Block(write: write, direction: direction)
-        return IncompleteBlock(block: block, next: next)
+        return State.Block(write: write, direction: direction, next: next)
       }
       // NOTE: the first block is consistently the block for the .zero value.
       let name   = try unwrap_name()
       let block0 = try unwrap_block(expect: .zero)
       let block1 = try unwrap_block(expect: .one)
-      return IncompleteState(name: name, blocks: (block0, block1))
+      return State(name: name, blocks: (block0, block1))
     }
 
     // Helper to extract the parsed data from a statement.
@@ -298,6 +275,7 @@ extension HaltingProblem.BluePrint {
       let expected: String
       let got: Statement
 
+      // Conform the CustomStringConvertible.
       var description: String {
         let number = got.number
         let line   = got.line
@@ -310,6 +288,7 @@ extension HaltingProblem.BluePrint {
     struct EndOfInputError: Error, CustomStringConvertible {
       let expected: String
 
+      // Conform the CustomStringConvertible.
       var description: String {
         return "end of input when expecting: \(expected)"
       }
@@ -321,6 +300,7 @@ extension HaltingProblem.BluePrint {
       let expected: Value
       let got: Statement
 
+      // Conform the CustomStringConvertible.
       var description: String {
         let number = got.number
         let line   = got.line
@@ -329,11 +309,12 @@ extension HaltingProblem.BluePrint {
     }
 
     // Error thrown when a block reference a state that is not defined by the
-    // blueprint. See blueprint() and complete().
+    // blueprint. See analyze().
     struct MissingStateError: Error, CustomStringConvertible {
       let name: State.Name
       let ref: State?
 
+      // Conform the CustomStringConvertible.
       var description: String {
         var ref_by = "Begin in"
         if let state = ref {
