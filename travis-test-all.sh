@@ -2,8 +2,8 @@
 
 set -e
 
-DIR=$(dirname "$0")
-DAYS=$(find "$DIR" -maxdepth 1 -type d -name 'Day [0-9]*' | sort)
+ROOT=$(dirname "$0")
+DAYS=$(find "$ROOT" -maxdepth 1 -type d -name 'Day [0-9]*' | sort)
 
 echo "$DAYS" | while read DAY; do
     echo "===>" $(basename "$DAY")
@@ -12,5 +12,7 @@ echo "$DAYS" | while read DAY; do
         cat ~/.swiftenv/init
         . ~/.swiftenv/init
     fi
-    (cd "$DAY" && swift test --verbose)
+    cd "$DAY"
+    swift test --verbose
+    cd "$ROOT"
 done
