@@ -10,7 +10,7 @@ public class PipeNetwork {
   let programs: Set<Program>
 
   // Create a network, given a program per line. Returns nil if parsing failed.
-  convenience init?(_ list: String) {
+  public convenience init?(_ list: String) {
     let lines = list.split(separator: "\n").map(String.init)
     self.init(lines)
   }
@@ -23,10 +23,10 @@ public class PipeNetwork {
     // First pass: build all the programs populating only their ID members
     // (ignoring the pipes for now).
     for line in lines {
-      guard let match = Program.LINE_REGEX.firstMatch(in: line) else { return nil }
+      guard let match = Program.RE.line.firstMatch(in: line) else { return nil }
       let (id, neighbours_str) = (Id(match.captures[0]!)!, match.captures[1]!)
       programs[id]   = Program(id)
-      neighbours[id] = Program.ID_REGEX.allMatches(in: neighbours_str).map {
+      neighbours[id] = Program.RE.id.allMatches(in: neighbours_str).map {
         Id($0.matchedString)!
       }
     }
@@ -60,9 +60,10 @@ public class PipeNetwork {
 
   // Represents a program from the pipe network.
   public class Program: Hashable {
-    // parsing stuff.
-    static let LINE_REGEX = Regex("([0-9]+) <-> (.+)")
-    static let ID_REGEX   = Regex("[0-9]+")
+    static let RE = (
+      line: Regex("([0-9]+) <-> (.+)"),
+      id:   Regex("[0-9]+")
+    )
 
     // Create a pipe between two given programs.
     static func ↔ (lhs: Program, rhs: Program) {
@@ -72,7 +73,7 @@ public class PipeNetwork {
 
     // Compare two given programs for equality.
     // NOTE: assume that no two programs have the same id.
-    public static func ==(lhs: Program, rhs: Program) -> Bool {
+    public static func == (lhs: Program, rhs: Program) -> Bool {
       return lhs.id == rhs.id
     }
 

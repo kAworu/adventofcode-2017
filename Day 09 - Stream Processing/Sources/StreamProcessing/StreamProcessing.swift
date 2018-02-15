@@ -22,7 +22,7 @@ public class StreamProcessing {
 
   // Parse a group and its contained streams (recursively). Returns nil on
   // failure.
-  static func parse_group(_ tokens: Tokenizer) -> Stream? {
+  private static func parse_group(_ tokens: Tokenizer) -> Stream? {
     var children: [Stream] = []
     guard let lookahead = tokens.peek() else { return nil }
     if case .group_end = lookahead {
@@ -102,7 +102,7 @@ public class StreamProcessing {
 
     // Transform the next character(s) from the stream into a token. Returns nil
     // on failure.
-    func tokenize() -> Token? {
+    private func tokenize() -> Token? {
       guard let c = chars.next() else { return nil }
       switch c {
         case "{": return Token.group_begin
@@ -116,7 +116,7 @@ public class StreamProcessing {
     // Consume the characters from the stream until an unescaped end-of-garbage
     // marker is found. Returns nil on error, a Token.garbage containing all the
     // unescaped consumed characters otherwise.
-    func tokenize_garbage() -> Token? {
+    private func tokenize_garbage() -> Token? {
       var content = ""
       inside: while true {
         guard let c = chars.next() else { return nil }

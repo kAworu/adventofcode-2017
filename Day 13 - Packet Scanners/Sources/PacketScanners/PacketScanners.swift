@@ -20,7 +20,7 @@ public class PacketScanners {
   }
 
   // Create a packet scanner from an array of layer.
-  init(_ layers: [Layer]) {
+  private init(_ layers: [Layer]) {
     self.layers = layers
   }
 

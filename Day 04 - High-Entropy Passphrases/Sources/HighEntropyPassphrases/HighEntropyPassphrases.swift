@@ -3,7 +3,7 @@ public class HighEntropyPassphrases {
   let words: [String]
 
   // Create a new checker for the given passphrase.
-  public init (_ passphrase: String) {
+  public init(_ passphrase: String) {
     self.words = passphrase.split(separator: " ").map(String.init)
   }
 
@@ -22,7 +22,7 @@ public class HighEntropyPassphrases {
   // Returns true if all words in our passphrase have a different image through
   // `f', false otherwise.
   // NOTE: No guarantee that `f' will be invoked with every passphrase's word.
-  internal func has_duplicate(_ f: (String) -> String) -> Bool {
+  func has_duplicate(_ f: (String) -> String) -> Bool {
     var seen: Set<String> = []
     for word in words {
       let entry = f(word)

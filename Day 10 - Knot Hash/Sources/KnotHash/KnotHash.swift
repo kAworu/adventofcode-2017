@@ -32,7 +32,7 @@ public class KnotHash {
   }
 
   // Create a hasher from an array of bytes.
-  init(_ state: [UInt8]) {
+  private init(_ state: [UInt8]) {
     self.state = state
   }
 

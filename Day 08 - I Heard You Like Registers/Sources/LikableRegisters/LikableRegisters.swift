@@ -6,7 +6,7 @@ public class LikableRegisters {
 
   // Create a new serie of instructions, one instruction per line. Returns nil
   // if any instruction was not parsed successfully.
-  convenience init?(_ list: String) {
+  public convenience init?(_ list: String) {
     let lines = list.split(separator: "\n").map(String.init)
     self.init(lines)
   }
@@ -64,14 +64,14 @@ public class LikableRegisters {
 
   // Represents an unusual register instruction.
   struct Instruction {
-    static let REGEX = Regex("([a-z]+) (inc|dec) (-?[0-9]+) if ([a-z]+) (<|<=|>|>=|==|!=) (-?[0-9]+)")
+    private static let RE = Regex("([a-z]+) (inc|dec) (-?[0-9]+) if ([a-z]+) (<|<=|>|>=|==|!=) (-?[0-9]+)")
 
     // this instruction "move" and "comparison" expressions.
     let mov, cmp: (reg: String, op: Operator, num: Int)
 
     // Parse a new instruction from the given string. Returns nil on failure.
     init?(_ s: String) {
-      guard let match = Instruction.REGEX.firstMatch(in: s) else { return nil }
+      guard let match = Instruction.RE.firstMatch(in: s) else { return nil }
       self.mov = (
         reg: match.captures[0]!,
         op: Operator(rawValue: match.captures[1]!)!,

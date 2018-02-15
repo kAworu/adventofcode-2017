@@ -8,7 +8,7 @@ public class RecursiveCircus {
   let programs: Set<Program>
 
   // Create a tower, given a program per line. Returns nil on parsing failure.
-  convenience init?(_ list: String) {
+  public convenience init?(_ list: String) {
     let lines = list.split(separator: "\n").map(String.init)
     self.init(lines)
   }
@@ -21,14 +21,14 @@ public class RecursiveCircus {
     // First pass: build all the programs populating only their name and weight
     // members (ignoring relationships for now).
     for line in lines {
-      guard let match = Program.LINE_REGEX.firstMatch(in: line) else { return nil }
+      guard let match = Program.RE.line.firstMatch(in: line) else { return nil }
       let (name, weight_str, children_str) = (
         match.captures[0]!,
         match.captures[1]!,
         match.captures[2]!
       )
       programs[name] = Program(name: name, weight: Int(weight_str)!)
-      children[name] = Program.NAME_REGEX.allMatches(in: children_str).map {
+      children[name] = Program.RE.name.allMatches(in: children_str).map {
         $0.matchedString
       }
     }
@@ -50,8 +50,10 @@ public class RecursiveCircus {
 
   // Represents a program from the tower.
   public class Program: Hashable, CustomStringConvertible {
-    static let LINE_REGEX = Regex("([a-z]+) \\(([0-9]+)\\)(.*)?")
-    static let NAME_REGEX = Regex("[a-z]+")
+    static let RE = (
+      line: Regex("([a-z]+) \\(([0-9]+)\\)(.*)?"),
+      name: Regex("[a-z]+")
+    )
 
     // Create a parent to child relationship. Returns `child` to allow chaining.
     @discardableResult static func ↗ (parent: Program, child: Program) -> Program {
@@ -62,7 +64,7 @@ public class RecursiveCircus {
 
     // Compare two given programs for equality.
     // NOTE: assume that there are no two programs with the same name.
-    public static func ==(lhs: Program, rhs: Program) -> Bool {
+    public static func == (lhs: Program, rhs: Program) -> Bool {
       return lhs.name == rhs.name
     }
 

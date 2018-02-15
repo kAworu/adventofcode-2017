@@ -9,8 +9,8 @@ class SporificaVirusTests: XCTestCase {
   """
 
   func testPartOne() {
-    let top_left     = SporificaVirus.Point(x: -4, y: -4)
-    let bottom_right = SporificaVirus.Point(x:  4, y:  3)
+    let top_left     = SporificaVirus.Grid.Point(x: -4, y: -4)
+    let bottom_right = SporificaVirus.Grid.Point(x:  4, y:  3)
     var burst_count     = 0
     var infection_count = 0
 
@@ -102,8 +102,8 @@ class SporificaVirusTests: XCTestCase {
   }
 
   func testPartTwo() {
-    let top_left     = SporificaVirus.Point(x: -4, y: -4)
-    let bottom_right = SporificaVirus.Point(x:  4, y:  3)
+    let top_left     = SporificaVirus.Grid.Point(x: -4, y: -4)
+    let bottom_right = SporificaVirus.Grid.Point(x:  4, y:  3)
     var burst_count     = 0
     var infection_count = 0
 

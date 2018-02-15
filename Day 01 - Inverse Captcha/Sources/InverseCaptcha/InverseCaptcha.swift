@@ -21,7 +21,7 @@ public class InverseCaptcha {
   // Returns the sum of all digits equals to their "next" digit. The given
   // `next` function must provide the "next" digit index given the current
   // digit index.
-  internal func solve(next: (Int) -> Int) -> Int {
+  func solve(next: (Int) -> Int) -> Int {
     return digits.indices.reduce(0) { acc, i in
       let (current, match) = (digits[i], digits[next(i)])
       return acc + (current == match ? current : 0)

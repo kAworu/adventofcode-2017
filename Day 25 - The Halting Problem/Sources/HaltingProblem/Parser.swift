@@ -5,10 +5,6 @@ extension HaltingProblem.BluePrint {
 
   // Used to parse a blueprint string description into a full BluePrint object.
   class Parser {
-    // Regular expression detecting a blank line. This is needed because
-    // blueprint description may have blank lines.
-    private static let BLANK_LINE_RE = Regex("^\\s*$")
-
     // All the statements
     private var statements: [Statement]
     // Last statement returned by pop().
@@ -203,13 +199,15 @@ extension HaltingProblem.BluePrint {
       // Represents the parsed line and its variable.
       enum Token {
         // parsing stuff.
-        private static let BEGIN_RE     = Regex("Begin in state ([A-Za-z]+)\\.")
-        private static let CHECKSUM_RE  = Regex("Perform a diagnostic checksum after ([0-9]+) steps\\.")
-        private static let DEFINE_RE    = Regex("In state ([A-Za-z]+):")
-        private static let CONDITION_RE = Regex("If the current value is (0|1):")
-        private static let WRITE_RE     = Regex("- Write the value (0|1)\\.")
-        private static let MOVE_RE      = Regex("- Move one slot to the (left|right).")
-        private static let CONTINUE_RE  = Regex("- Continue with state ([A-Za-z]+)\\.")
+        private static let RE = (
+          begin: Regex("Begin in state ([A-Za-z]+)\\."),
+          checksum: Regex("Perform a diagnostic checksum after ([0-9]+) steps\\."),
+          define: Regex("In state ([A-Za-z]+):"),
+          condition: Regex("If the current value is (0|1):"),
+          write: Regex("- Write the value (0|1)\\."),
+          move: Regex("- Move one slot to the (left|right)."),
+          continue: Regex("- Continue with state ([A-Za-z]+)\\.")
+        )
 
         // Token types
         case begin_in(state: State.Name)
@@ -223,25 +221,25 @@ extension HaltingProblem.BluePrint {
 
         // Parse a given string into a token. On failure, .invalid is returned.
         static func tokenize(_ s: String) -> Token {
-          if let match = Token.BEGIN_RE.firstMatch(in: s) {
+          if let match = Token.RE.begin.firstMatch(in: s) {
             let state = State.Name(match.captures[0]!)
             return .begin_in(state: state)
-          } else if let match = Token.CHECKSUM_RE.firstMatch(in: s) {
+          } else if let match = Token.RE.checksum.firstMatch(in: s) {
             let steps = Int(match.captures[0]!)!
             return .checksum(steps: steps)
-          } else if let match = Token.DEFINE_RE.firstMatch(in: s) {
+          } else if let match = Token.RE.define.firstMatch(in: s) {
             let state = State.Name(match.captures[0]!)
             return .define(state: state)
-          } else if let match = Token.CONDITION_RE.firstMatch(in: s) {
+          } else if let match = Token.RE.condition.firstMatch(in: s) {
             let value = Value(rawValue: Int(match.captures[0]!)!)!
             return .if_the_current_value_is(value)
-          } else if let match = Token.WRITE_RE.firstMatch(in: s) {
+          } else if let match = Token.RE.write.firstMatch(in: s) {
             let value = Value(rawValue: Int(match.captures[0]!)!)!
             return .write(value: value)
-          } else if let match = Token.MOVE_RE.firstMatch(in: s) {
+          } else if let match = Token.RE.move.firstMatch(in: s) {
             let direction = Direction(rawValue: match.captures[0]!)!
             return .move_one_slot(to: direction)
-          } else if let match = Token.CONTINUE_RE.firstMatch(in: s) {
+          } else if let match = Token.RE.continue.firstMatch(in: s) {
             let state = State.Name(match.captures[0]!)
             return .continue_with(state: state)
           } else {

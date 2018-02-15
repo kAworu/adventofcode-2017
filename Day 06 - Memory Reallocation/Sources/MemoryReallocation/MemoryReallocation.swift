@@ -36,7 +36,7 @@ public class MemoryReallocation {
   // Represents a memory bank.
   class Bank: Comparable, CustomStringConvertible {
     // Returns true if lhs is lesser than rhs, false otherwise.
-    static func <(lhs: Bank, rhs: Bank) -> Bool {
+    static func < (lhs: Bank, rhs: Bank) -> Bool {
       if lhs.blocks == rhs.blocks {
         // NOTE: tie won by the lowest-numbered memory bank
         return lhs.id > rhs.id
@@ -46,7 +46,7 @@ public class MemoryReallocation {
     }
 
     // Returns true if lhs and rhs are equals, false otherwise.
-    static func ==(lhs: Bank, rhs: Bank) -> Bool {
+    static func == (lhs: Bank, rhs: Bank) -> Bool {
       return lhs.id == rhs.id && lhs.blocks == rhs.blocks
     }
 

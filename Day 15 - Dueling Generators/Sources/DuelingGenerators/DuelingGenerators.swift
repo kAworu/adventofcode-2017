@@ -24,7 +24,8 @@ public class DuelingGenerators {
 
   // Returns the count of matching generated values from the two iterators
   // where their lowest 16 bits match (over the given number of try).
-  func count<T: IteratorProtocol>(n: Int, a: T, b: T) -> Int where T.Element == UInt64 {
+  private func count<T: IteratorProtocol>(n: Int, a: T, b: T)
+  -> Int where T.Element == UInt64 {
     var match = 0 // judge's match count.
     var (a, b) = (a, b) // deconst
     for _ in 0..<n {

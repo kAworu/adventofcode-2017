@@ -108,7 +108,7 @@ public class DiskDefragmentation {
   // hacked from https://developer.apple.com/documentation/swift/hashable
   struct Point: Hashable {
     // Compare two given points for equality.
-    static func ==(lhs: Point, rhs: Point) -> Bool {
+    static func == (lhs: Point, rhs: Point) -> Bool {
       return lhs.x == rhs.x && lhs.y == rhs.y
     }
 

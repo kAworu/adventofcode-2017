@@ -2,49 +2,6 @@
 public class Tubes {
   // Represents a routing diagram with lines.
   public class RoutingDiagram {
-    // Line type the packet may encounter on its way.
-    public enum Line: Equatable, CustomStringConvertible {
-      case letter(Character)
-      case vertical   // |
-      case horizontal // -
-      case cross      // +
-      case void       // space
-
-      // Returns true if both line are equals, false otherwise. Note that only
-      // the line type (and its Character if any) is checked, not the position.
-      public static func ==(lhs: Line, rhs: Line) -> Bool {
-        switch (lhs, rhs) {
-          case (.letter(let a), .letter(let b)): return a == b
-          case (.vertical,   .vertical):   fallthrough
-          case (.horizontal, .horizontal): fallthrough
-          case (.cross,      .cross):      fallthrough
-          case (.void,       .void):       return true
-          default: return false
-        }
-      }
-
-      // Parse the given Character as a Line.
-      static func parse(_ c: Character) -> Line {
-        switch c {
-          case "|": return .vertical
-          case "-": return .horizontal
-          case "+": return .cross
-          case " ": return .void
-          default:  return .letter(c)
-        }
-      }
-
-      // Returns a string containing the line letter, an empty string
-      // otherwise.
-      public var description: String {
-        if case .letter(let c) = self {
-          return "\(c)"
-        } else {
-          return ""
-        }
-      }
-    }
-
     let diagram: [[Line]]
 
     // Parse a routing diagram from the given String.
@@ -58,7 +15,7 @@ public class Tubes {
     }
 
     // Parse a routing diagram a Character matrix.
-    init(_ chars: [[Character]]) {
+    private init(_ chars: [[Character]]) {
       diagram = chars.map { $0.map { c in Line.parse(c) } }
     }
 
@@ -114,6 +71,49 @@ public class Tubes {
       }
       return path
     }
+
+    // Line type the packet may encounter on its way.
+    public enum Line: Equatable, CustomStringConvertible {
+      case letter(Character)
+      case vertical   // |
+      case horizontal // -
+      case cross      // +
+      case void       // space
+
+      // Returns true if both line are equals, false otherwise. Note that only
+      // the line type (and its Character if any) is checked, not the position.
+      public static func == (lhs: Line, rhs: Line) -> Bool {
+        switch (lhs, rhs) {
+          case (.letter(let a), .letter(let b)): return a == b
+          case (.vertical,   .vertical):   fallthrough
+          case (.horizontal, .horizontal): fallthrough
+          case (.cross,      .cross):      fallthrough
+          case (.void,       .void):       return true
+          default: return false
+        }
+      }
+
+      // Parse the given Character as a Line.
+      static func parse(_ c: Character) -> Line {
+        switch c {
+          case "|": return .vertical
+          case "-": return .horizontal
+          case "+": return .cross
+          case " ": return .void
+          default:  return .letter(c)
+        }
+      }
+
+      // Returns a string containing the line letter, an empty string
+      // otherwise.
+      public var description: String {
+        if case .letter(let c) = self {
+          return "\(c)"
+        } else {
+          return ""
+        }
+      }
+    }
   }
 
   // hacked from
@@ -124,7 +124,8 @@ public class Tubes {
     // Returns all the directions without the given exception (if any).
     static func all(but except: Direction?) -> Set<Direction> {
       let all: Set<Direction> = [.north, .south, .east, .west]
-      return all.filter { except == nil || $0 != except! }
+      guard let exclude = except else { return all }
+      return all.filter { $0 != exclude }
     }
 
     // The opposite direction from this one.
