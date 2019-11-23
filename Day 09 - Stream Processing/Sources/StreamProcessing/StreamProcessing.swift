@@ -79,7 +79,7 @@ public class StreamProcessing {
 
   // Peekable Garbage Tokenizer™
   class Tokenizer: IteratorProtocol {
-    var chars: IndexingIterator<String>
+    var chars: String.Iterator
     var head: Token? = nil // can be peek()'d
 
     // Create a new tokenizer from a given String.
