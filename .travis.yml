@@ -2,13 +2,12 @@ os:
     - linux
     - osx
 sudo: required
-dist: trusty
-osx_image: xcode9.1
+dist: bionic
 
 language: generic
 
 install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then eval "$(curl -sL https://swiftenv.fuller.li/install.sh)"; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then swiftenv install 4.0.2; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then swiftenv install 5.1.2; fi
 script:
   - ./travis-test-all.sh "$TRAVIS_OS_NAME"
