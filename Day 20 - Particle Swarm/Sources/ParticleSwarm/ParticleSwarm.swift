@@ -98,7 +98,7 @@ public class ParticleSwarm {
             // (untouched), the current one merged with those happening at the
             // same time and position, and those happening after that are still
             // happening.
-            collisions = without + [merged] + maybe_after.flatMap { $0 }
+            collisions = without + [merged] + maybe_after.compactMap { $0 }
           }
         }
       }
