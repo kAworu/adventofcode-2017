@@ -80,8 +80,7 @@ infix operator ÷  : MultiplicationPrecedence
 infix operator ÷= : AssignmentPrecedence
 
 func ÷<T: BinaryInteger>(x: T, m: T) -> T {
-  let r = x % m
-  return (r < 0 ? r + m : r)
+  return (x + m) % m
 }
 
 func ÷=<T: BinaryInteger>(x: inout T, m: T) {
