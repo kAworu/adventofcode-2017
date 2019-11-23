@@ -85,8 +85,8 @@ extension ElectromagneticMoat {
       }
 
       // Conform to Hashable.
-      var hashValue: Int {
-        return id.hashValue
+      public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
       }
 
       // Conform to CustomStringConvertible

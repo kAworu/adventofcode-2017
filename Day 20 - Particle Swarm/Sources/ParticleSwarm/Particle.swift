@@ -37,9 +37,9 @@ extension ParticleSwarm {
       return "id=\(id), p=\(p), v=\(v), a=\(a)"
     }
 
-    // Conform to Hashable
-    public var hashValue: Int {
-      return id.hashValue
+    // Conform to Hashable.
+    public func hash(into hasher: inout Hasher) {
+      hasher.combine(id)
     }
 
     // Returns true if this particle is ever expanding (will never be closer to

@@ -87,11 +87,6 @@ extension ParticleSwarm {
       }
 
       public let x, y, z: Int
-
-      public // Conform to Hashable.
-      var hashValue: Int {
-        return x.hashValue ^ y.hashValue ^ z.hashValue &* 16777619
-      }
     }
   }
 }

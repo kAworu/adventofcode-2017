@@ -108,10 +108,5 @@ public struct SpiralMemory {
           case .south: return Point(x: x, y: y - 1)
         }
     }
-
-    // Conform to Hashable.
-    var hashValue: Int {
-      return x.hashValue ^ y.hashValue &* 16777619
-    }
   }
 }

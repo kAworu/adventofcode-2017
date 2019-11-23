@@ -130,10 +130,5 @@ public class DiskDefragmentation {
         self[.east], self[.north], self[.west], self[.south]
       ]
     }
-
-    // Conform to Hashable.
-    var hashValue: Int {
-      return x.hashValue ^ y.hashValue &* 16777619
-    }
   }
 }

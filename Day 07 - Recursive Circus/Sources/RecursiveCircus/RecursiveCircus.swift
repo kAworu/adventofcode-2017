@@ -115,8 +115,8 @@ public class RecursiveCircus {
     }
 
     // Conform to Hashable.
-    public var hashValue: Int {
-      return name.hashValue
+    public func hash(into hasher: inout Hasher) {
+      hasher.combine(name)
     }
 
     // Conform to CustomStringConvertible.

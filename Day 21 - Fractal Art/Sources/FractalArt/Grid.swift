@@ -144,17 +144,15 @@ extension FractalArt {
     }
 
     // Conform to Hashable.
-    public var hashValue: Int {
+    public func hash(into hasher: inout Hasher) {
       // NOTE: We use the corners and the center pixels plus the size to build
       // a hash value. Using only the size is terrible given that we use it for
       // 2x2 and 3x3 grids and using all the pixels is too slow.
-      let end = size - 1
-      // a pixel's hashValue is either 0 or 1, the left shifts ensure that we
-      // have 5 bits of resolution.
-      let (tl, tr) = (self[0, 0].hashValue << 4,     self[end, 0].hashValue << 3)
-      let (br, bl) = (self[end, end].hashValue << 2, self[0, end].hashValue << 1)
-      let mid = self[size / 2, size / 2].hashValue
-      return (size << 5) ^ tl ^ tr ^ br ^ bl ^ mid &* 16777619
+      hasher.combine(self[0, 0])               // top-left
+      hasher.combine(self[size - 1, 0])        // top-right
+      hasher.combine(self[size - 1, size - 1]) // bottom-right
+      hasher.combine(self[0, size - 1])        // bottom-left
+      hasher.combine(self[size / 2, size / 2]) // middle
     }
 
     // Returns a string description of this grid, using slashes (/) as
